@@ -1,9 +1,11 @@
 module Main (main) where
 
-import Lib (someFunc)
-import Data.List(sort)
+    
+import Qhseq (quickHull)
 
-main :: IO()
-main = do  
-    someFunc
-
+main :: IO ()
+main =
+    print (result)
+    where
+        result = quickHull [(x, y) | x <- [0..9], y <- [0..9]]
+        --expected = [(0, 0), (9, 0), (9, 9), (0, 9)]

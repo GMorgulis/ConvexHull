@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Qhseq
   other-modules:
       Paths_convex_hull
   autogen-modules:

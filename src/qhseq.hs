@@ -1,3 +1,7 @@
+module Qhseq 
+    ( quickHull 
+    ) where
+      
 {-
 George Morgulis 
 COMS 4995 Parallel Functional Programming
