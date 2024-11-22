@@ -19,3 +19,11 @@ mind :: [C2] -> Int -> C2
 mind points 0 = minimumBy (comparing fst) points
 mind points 1 = minimumBy (comparing snd) points
 mind _ _ = error "Invalid arguements."
+
+{-Calculates the maximum area given a line segment-}
+maxArea :: C2 -> C2 -> [C2] -> C2
+maxArea anchor1 anchor2 points = maximumBy (comparing(\p -> triarea anchor1 anchor2 p)) points
+
+{-Finds the area of a triangle-}
+triarea :: C2 -> C2 -> C2 -> Double 
+triarea (x1, y1) (x2, y2) (x3, y3) = (0.5) * abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
