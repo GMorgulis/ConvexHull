@@ -40,7 +40,7 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
     where
         helper _ _ [] group1 group2 = (group1, group2)
         helper (x1, y1) (x2, y2) (z:zs) group1 group2
-            |  (x2 - x1) * ((snd z) - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2
+            |  (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2
             | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2)
 
 
