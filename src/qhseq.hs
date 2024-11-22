@@ -1,3 +1,10 @@
+{-
+George Morgulis 
+COMS 4995 Parallel Functional Programming
+
+This is the sequential implementaion of quickhull
+-}
+
 import Data.List (maximumBy, minimumBy)
 import Data.Ord (comparing)
 
