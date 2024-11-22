@@ -44,6 +44,15 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
             | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2)
  
 
+{-Keeps all points outside the triangle. Works for everything other than points on triangle itself-}
+keepOuter :: C2 -> C2 -> C2 -> [C2] -> [C2]
+keepOuter t1 t2 t3 points = helper t1 t2 t3 points []
+    where 
+        helper _ _ _ [] keep = keep
+        helper p1 p2 p3 (x : xs) keep 
+            | pointInTriangle p1 p2 p3 x = helper p1 p2 p3 xs keep
+            | otherwise = helper p1 p2 p3 xs (x : keep) 
+
 {-Finds the area of a triangle-}
 triArea :: C2 -> C2 -> C2 -> Double 
 triArea (x1, y1) (x2, y2) (x3, y3) = (0.5) * abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
@@ -51,3 +60,4 @@ triArea (x1, y1) (x2, y2) (x3, y3) = (0.5) * abs ((x1 * (y2 - y3)) + (x2 * (y3 -
 {-Checks if point is in triangle-}
 pointInTriangle :: C2 -> C2 -> C2 -> C2 -> Bool
 pointInTriangle t1 t2 t3 p = (triArea t1 t2 p) + (triArea t1 t3 p) + (triArea t2 t3 p) == (triArea t1 t2 t3)
+
