@@ -1,5 +1,5 @@
 module Qhseq 
-    ( quickHull 
+    (C2, mind, maxd, qHull
     ) where
       
 {-
@@ -9,29 +9,33 @@ COMS 4995 Parallel Functional Programming
 This is the sequential implementaion of quickhull
 -}
 
-import Data.List (maximumBy, minimumBy)
+import Data.List (maximumBy, minimumBy, nub)
 import Data.Ord (comparing)
 
 
 type C2 = (Double, Double)
 
-{-Implements quickhull-}
-quickHull :: [C2] -> [C2]
-quickHull points = a1 : a2 : partHull a1 a2 group1 ++ partHull a1 a2 group2
-    where 
-        group1 = fst (grouper a1 a2 points)
-        group2 = snd (grouper a1 a2 points)
-        a1 = mind points 0 
-        a2 = maxd points 0 
 
-{-Used to compute the upper and lower hull`111`-}
-partHull :: C2 -> C2 -> [C2] -> [C2]
-partHull anchor1 anchor2 points = helper anchor1 anchor2 points []
-    where
-        helper _ _ [] hull = hull
-        helper a1 a2 (x : xs) hull = 
-            let m = maxAreaPoint a1 a2 (x:xs)
-            in helper a1 a2 (keepOuter a1 a2 m (x:xs)) (m : hull)
+qHull :: [C2] -> [C2]
+qHull points = nub (helper1 points [])
+    where 
+        helper1 [] hull = hull
+        helper1 (x : xs) hull =
+            let m1 = maxAreaPoint a1 a2 group1
+                m2 = maxAreaPoint a1 a2 group2
+                group1 = fst (grouper a1 a2 (x:xs))
+                group2 = snd (grouper a1 a2 (x:xs))
+                a1 = mind (x:xs) 0 
+                a2 = maxd (x:xs) 0 
+            in a1 : a2 : helper2 a1 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper2 a1 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
+
+        helper2 _ _ [] hull = hull
+        helper2 o1 o2 (y:ys) hull =
+            let m1 = maxAreaPoint o1 o2 group1
+                m2 = maxAreaPoint o1 o2 group2
+                group1 = fst (grouper o1 o2 (y:ys))
+                group2 = snd (grouper o1 o2 (y:ys))
+            in helper2 o1 m1 (keepOuter o1 o2 m1 group1) (m1 : hull) ++ helper2 o2 m2 (keepOuter o1 o2 m2 group2) (m2 : hull)
     
 
 {-Computes the maximum of points by specified dimension-}
@@ -48,7 +52,8 @@ mind _ _ = error "Invalid arguements."
 
 {-Calculates the maximum area given a line segment-}
 maxAreaPoint :: C2 -> C2 -> [C2] -> C2
-maxAreaPoint anchor1 anchor2 = maximumBy (comparing (triArea anchor1 anchor2))
+maxAreaPoint anchor1 anchor2 [] = anchor2
+maxAreaPoint anchor1 anchor2 points = maximumBy (comparing (triArea anchor1 anchor2)) points
 
 {-Determines whether a point lies to the right or left of a line segment-}
 grouper :: C2 -> C2 -> [C2] -> ([C2],[C2])
@@ -56,9 +61,9 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
     where
         helper _ _ [] group1 group2 = (group1, group2)
         helper (x1, y1) (x2, y2) (z:zs) group1 group2
-            | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs group1 group2  -- Makes sure anchors are not added
-            | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2
-            | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2)
+            | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs (group1) (group2)  -- Makes sure anchors are not added
+            | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- Uses cross product, adds g1
+            | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- add to g2
 
 
 {-Keeps all points outside the triangle. Works for everything other than points on triangle itself-}
@@ -72,8 +77,15 @@ keepOuter t1 t2 t3 points = helper t1 t2 t3 points []
 
 {-Finds the area of a triangle-}
 triArea :: C2 -> C2 -> C2 -> Double
-triArea (x1, y1) (x2, y2) (x3, y3) = (0.5) * abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
+triArea (x1, y1) (x2, y2) (x3, y3) =  abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
 
-{-Checks if point is in triangle-}
+{-Checks if point lies inside triangle-}
 pointInTriangle :: C2 -> C2 -> C2 -> C2 -> Bool
-pointInTriangle t1 t2 t3 p = (triArea t1 t2 p) + (triArea t1 t3 p) + (triArea t2 t3 p) == (triArea t1 t2 t3)
+pointInTriangle t1 t2 t3 p = 
+    closeEnough (abs (triArea t1 t2 p) + abs (triArea t1 t3 p) + abs (triArea t2 t3 p)) (abs (triArea t1 t2 t3))
+
+epsilon :: Double
+epsilon = 1e-9
+
+closeEnough :: Double -> Double -> Bool
+closeEnough a b = abs (a - b) < epsilon
