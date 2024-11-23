@@ -35,7 +35,7 @@ qHull points = nub (helper1 points [])
                 m2 = maxAreaPoint o1 o2 group2
                 group1 = fst (grouper o1 o2 (y:ys))
                 group2 = snd (grouper o1 o2 (y:ys))
-            in helper2 o1 m1 (keepOuter o1 o2 m1 group1) (m1 : hull) ++ helper2 o2 m2 (keepOuter o1 o2 m2 group2) (m2 : hull)
+            in helper2 o1 m1 (keepOuter o1 o2 m1 group1) (m1 : hull) ++ helper2 o1 m2 (keepOuter o1 o2 m2 group2) (m2 : hull)
     
 
 {-Computes the maximum of points by specified dimension-}
