@@ -7,6 +7,7 @@ import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Backend.SVG (renderSVG)
 import System.Random (randomRIO)
 import Andrew (convexHull)
+import System.Exit (exitSuccess, exitFailure)
 
 -- Generate a random point (x, y) where x and y are between 0.0 and 400.0
 randomPoint :: IO (Double, Double)
@@ -44,27 +45,37 @@ diagram points hullPoints = pointsDiagram points hullPoints <> axes
 
 main :: IO ()
 main = do
-    points <- generateRandomPoints 20
+    points <- generateRandomPoints 100
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
     renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
+    print "----------------------------------------------------"
+
     if hullPoints == correctPoints 
-        then 
+        then do
             print "Test Passed"
        else do
             putStrLn "They do not match"
             putStrLn $ "Extra Points: " ++ show (hullPoints \\ correctPoints)
             putStrLn $ "Missing Points: " ++ show (correctPoints \\ hullPoints)
-            putStrLn "---------------------------"
 
+    print "----------------------------------------------------"
     print "My Implementation:"
     print hullPoints
     print "Length"
     print $ length hullPoints
+    print "----------------------------------------------------"
     print "Correct Implementation"
     print correctPoints
     print "Correct Length"
     print $ length correctPoints
+    print "----------------------------------------------------"
+    print "All points:"
+    print points
+    print "----------------------------------------------------"
+
+    if hullPoints == correctPoints then exitFailure else exitSuccess
+
 
 
 
