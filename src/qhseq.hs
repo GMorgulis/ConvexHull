@@ -1,5 +1,5 @@
 module Qhseq 
-    (C2, mind, maxd, qHull
+    (C2, mind, maxd, qh
     ) where
       
 {-
@@ -16,10 +16,10 @@ import Data.Ord (comparing)
 type C2 = (Double, Double)
 
 
-qHull :: [C2] -> [C2]
-qHull points = nub (helper1 points [])
+qh :: [C2] -> [C2]
+qh points = nub (helper1 points [])
     where 
-        helper1 [] hull = hull
+        helper1 [] hull = hull -- starter 
         helper1 (x : xs) hull =
             let m1 = maxAreaPoint a1 a2 group1
                 m2 = maxAreaPoint a1 a2 group2
@@ -27,16 +27,24 @@ qHull points = nub (helper1 points [])
                 group2 = snd (grouper a1 a2 (x:xs))
                 a1 = mind (x:xs) 0 
                 a2 = maxd (x:xs) 0 
-            in a1 : a2 : helper2 a1 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper2 a1 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
+            in a1 : a2 : helper2 a1 a2 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper3 a1 a2 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
 
-        helper2 _ _ [] hull = hull
-        helper2 o1 o2 (y:ys) hull =
-            let m1 = maxAreaPoint o1 o2 group1
-                m2 = maxAreaPoint o1 o2 group2
-                group1 = fst (grouper o1 o2 (y:ys))
-                group2 = snd (grouper o1 o2 (y:ys))
-            in helper2 o1 m1 (keepOuter o1 o2 m1 group1) (m1 : hull) ++ helper2 o1 m2 (keepOuter o1 o2 m2 group2) (m2 : hull)
-    
+        helper2 _ _ _ [] hull = hull -- upper hull
+        helper2 o1 o2 pm (y:ys) hull =
+            let m1 = maxAreaPoint o1 pm group1
+                m2 = maxAreaPoint o2 pm group2
+                group1 = fst (grouper o1 pm (y:ys))
+                group2 = fst (grouper pm o2 (y:ys))
+            in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
+        
+        helper3 _ _ _ [] hull = hull -- lower hull
+        helper3 o1 o2 pm (y:ys) hull =
+            let m1 = maxAreaPoint o1 pm group1
+                m2 = maxAreaPoint o2 pm group2
+                group1 = snd (grouper o1 pm (y:ys))
+                group2 = snd (grouper pm o2 (y:ys))
+            in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
+
 
 {-Computes the maximum of points by specified dimension-}
 maxd :: [C2] -> Int -> C2
@@ -61,7 +69,8 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
     where
         helper _ _ [] group1 group2 = (group1, group2)
         helper (x1, y1) (x2, y2) (z:zs) group1 group2
-            | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs (group1) (group2)  -- Makes sure anchors are not added
+            | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs group1 group2  -- Makes sure anchors are not added
+            | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) == 0 = helper (x1, y1) (x2, y2) zs group1 group2 
             | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- Uses cross product, adds g1
             | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- add to g2
 
