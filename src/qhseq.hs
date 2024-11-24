@@ -33,17 +33,17 @@ qh points = nub (helper1 points [])
         helper2 o1 o2 pm (y:ys) hull =
             let m1 = maxAreaPoint o1 pm group1
                 m2 = maxAreaPoint o2 pm group2
-                group1 = fst (grouper o1 pm (y:ys))
-                group2 = fst (grouper pm o2 (y:ys))
+                group1 = fst (grouper o1 pm (y:ys)) -- always picking the elet
+                group2 = fst (grouper pm o2 (y:ys)) -- alwyas picking the left
             in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
         
         helper3 _ _ _ [] hull = hull -- lower hull
         helper3 o1 o2 pm (y:ys) hull =
             let m1 = maxAreaPoint o1 pm group1
                 m2 = maxAreaPoint o2 pm group2
-                group1 = snd (grouper o1 pm (y:ys))
-                group2 = snd (grouper pm o2 (y:ys))
-            in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
+                group1 = snd (grouper o1 pm (y:ys))  -- always picking the right
+                group2 = snd (grouper pm o2 (y:ys))  -- always picking the right
+            in helper3 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper3 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
 
 
 {-Computes the maximum of points by specified dimension-}

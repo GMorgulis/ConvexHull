@@ -1,42 +1,60 @@
 module Main (main) where
 
-
-import Qhseq (mind, maxd, C2, qh )
+import Qhseq (mind, maxd, C2, qh)
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Backend.SVG (renderSVG)
-import System.IO (writeFile)
+import System.Random (randomRIO)
 
--- Define your points
-points = [
-    (367, 299), (98, 226), (200, 92), (206, 274), (276, 163), (71, 283), (335, 121), (85, 156), (145, 40), (32, 45),
-    (241, 93), (23, 83), (274, 318), (95, 207), (320, 55), (12, 95), (226, 61), (246, 60), (25, 315), (341, 372),
-    (367, 206), (273, 290), (138, 160), (244, 332), (212, 357), (93, 182), (92, 276), (99, 134), (89, 169), (78, 187),
-    (249, 135), (189, 82), (269, 235), (214, 145), (122, 15), (150, 79), (282, 265), (96, 163), (327, 121), (52, 32),
-    (116, 348), (113, 25), (143, 368), (72, 125), (238, 121), (17, 73), (49, 17), (268, 257), (134, 318), (353, 215),
-    (212, 320), (100, 74), (213, 180), (176, 131), (45, 206), (123, 248), (266, 337), (78, 189), (353, 11), (135, 313),
-    (113, 52), (348, 276), (101, 340), (283, 79), (37, 50), (356, 170), (105, 75), (292, 175), (95, 292), (26, 65),
-    (345, 283), (238, 57), (204, 307), (51, 252), (199, 146), (246, 276), (122, 248), (47, 221), (52, 191), (345, 196),
-    (85, 26), (16, 314), (155, 282), (156, 340), (370, 267), (105, 258), (172, 222), (146, 157), (10, 25), (357, 317),
-    (262, 267), (76, 215), (16, 99), (139, 207), (289, 138), (9, 198), (56, 88), (173, 191), (106, 29), (317, 176),
-    (340, 152), (230, 83), (81, 288), (35, 136), (183, 103), (217, 121), (258, 99), (167, 121), (65, 307), (122, 149),
-    (247, 171), (33, 92), (198, 48), (265, 145), (163, 185), (167, 303), (334, 13), (57, 332), (297, 75), (160, 100),
-    (23, 234), (187, 138), (167, 315), (333, 226), (20, 198), (131, 197), (160, 343), (277, 55), (163, 86), (198, 267),
-    (157, 276), (50, 16), (8, 143), (58, 38), (206, 134), (78, 306), (106, 248), (162, 79), (111, 267), (200, 81),
-    (139, 315), (81, 243), (155, 198), (275, 103), (149, 271), (49, 121), (348, 349), (334, 27), (238, 214), (90, 134),
-    (200, 162), (47, 244), (122, 302), (87, 278), (81, 8), (106, 107), (55, 218), (57, 330), (94, 82), (182, 287),
-    (43, 67), (112, 262), (306, 95), (271, 178), (232, 97), (60, 319), (15, 78), (29, 57), (287, 5), (143, 65),
-    (227, 106), (186, 134), (240, 75), (124, 44), (150, 55), (56, 101), (337, 122), (8, 77), (204, 122), (171, 96),
-    (18, 258), (123, 219), (333, 184), (306, 130), (195, 91), (219, 305), (188, 48), (35, 349), (276, 62), (243, 248),
-    (225, 15), (342, 150), (58, 109), (202, 36), (89, 137), (267, 214), (43, 131), (161, 277), (37, 186), (281, 158),
-    (289, 81), (136, 144), (163, 176), (138, 77), (102, 244), (112, 156), (226, 82), (259, 317), (92, 306), (160, 295),
-    (57, 12), (130, 119), (336, 41), (305, 138), (32, 319), (52, 17), (220, 244), (226, 157), (121, 254), (327, 136),
-    (181, 17), (354, 143), (269, 232), (269, 82), (178, 258), (19, 324), (49, 276), (41, 61), (211, 86), (349, 37),
-    (249, 173), (179, 37), (180, 213), (57, 288), (82, 105), (267, 250), (181, 35), (95, 305), (295, 37), (269, 6),
-    (243, 244), (126, 112), (169, 98), (189, 56), (327, 100), (78, 73), (166, 22), (147, 98), (335, 277), (88, 266),
-    (133, 297), (24, 308), (246, 138), (182, 123), (248, 35), (204, 73), (155, 122), (240, 278), (55, 337), (121, 255),
-    (18, 158), (297, 200), (104, 138), (36, 231), (77, 69), (37, 64), (171, 163), (348, 182), (228, 143), (214, 46),
-    (324, 287), (59, 330), (164, 91), (167, 120), (302, 30), (108, 187), (94, 87), (137, 23), (247, 285), (272, 38)]
+-- Generate a random point (x, y) where x and y are between 0.0 and 400.0
+randomPoint :: IO (Double, Double)
+randomPoint = do
+    x <- randomRIO (0.0, 400.0)
+    y <- randomRIO (0.0, 400.0)
+    return (x, y)
+
+-- Generate a list of random points (n points)
+generateRandomPoints :: Int -> IO [(Double, Double)]
+generateRandomPoints n = sequence $ replicate n randomPoint
+
+-- Convert points to P2 type used by Diagrams
+pointsP2 :: [(Double, Double)] -> [P2 Double]
+pointsP2 = map p2
+
+-- Draw the points with hull points in red and the rest in blue
+pointsDiagram :: [(Double, Double)] -> [(Double, Double)] -> Diagram B
+pointsDiagram points hullPoints = mconcat
+    [ mconcat [ circle 5 # fc blue # translate (r2 (x, y))
+              | (x, y) <- points, (x, y) `notElem` hullPoints ]
+    , mconcat [ circle 5 # fc red # translate (r2 (x, y))
+              | (x, y) <- hullPoints ]
+    ]
+
+-- Draw x and y axes
+axes :: Diagram B
+axes = (arrowBetween (p2 (0, -50)) (p2 (0, 400)) # lc black) <>
+       (arrowBetween (p2 (-50, 0)) (p2 (400, 0)) # lc black)
+
+-- Combine points diagram with axes
+diagram :: [(Double, Double)] -> [(Double, Double)] -> Diagram B
+diagram points hullPoints = pointsDiagram points hullPoints <> axes
+
+main :: IO ()
+main = do
+    points <- generateRandomPoints 100
+    let hullPoints = qh points
+    renderSVG "convexHull_with_axes.svg" (mkWidth 300) (diagram points hullPoints)
+    print hullPoints
+    print $ length hullPoints
+    print $ maxd hullPoints 0
+    print $ mind hullPoints 0
+
+
+
+
+
+
+
 
 
 
@@ -56,43 +74,3 @@ points = [
     (340, 140), (83, 193), (370, 25), (350, 78), (145, 182), (53, 57), (261, 245), (354, 240), (341, 211), (271, 64),
     (9, 84), (272, 47), (18, 310), (89, 213), (131, 246), (56, 30), (38, 70), (30, 110), (100, 285), (191, 38),
     (64, 159), (23, 100), (219, 292), (75, 70), (193, 176), (206, 27), (187, 267), (66, 312), (155, 151), (246, 194)] -}
-
-
-
--- Convert points to P2 type used by Diagrams
-pointsP2 :: [P2 Double]
-pointsP2 = map p2 points
-
--- Get the convex hull
-hullPoints :: [(Double, Double)]
-hullPoints = qh points
-
--- Convert hull points to P2 type
-hullPointsP2 :: [P2 Double]
-hullPointsP2 = map p2 hullPoints
-
--- Draw the points with hull points in red and the rest in blue
-pointsDiagram :: Diagram B
-pointsDiagram = mconcat
-    [ mconcat [ circle 5 # fc blue # translate (r2 (x, y))
-              | (x, y) <- points, (x, y) `notElem` hullPoints ]
-    , mconcat [ circle 5 # fc red # translate (r2 (x, y))
-              | (x, y) <- hullPoints ]
-    ]
-
--- Draw x and y axes
-axes :: Diagram B
-axes = (arrowBetween (p2 (0, -50)) (p2 (0, 400)) # lc black) <>
-       (arrowBetween (p2 (-50, 0)) (p2 (400, 0)) # lc black)
-
--- Combine points diagram with axes
-diagram :: Diagram B
-diagram = pointsDiagram <> axes
-
-main :: IO ()
-main = do
-    renderSVG "convexHull_with_axes.svg" (mkWidth 300) diagram
-    print (hullPoints)
-    print (length (hullPoints))
-    print (maxd hullPoints 0)
-    print (mind hullPoints 0)

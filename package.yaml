@@ -25,6 +25,7 @@ dependencies:
 - diagrams-core
 - diagrams-lib
 - diagrams-svg
+- random
 
 ghc-options:
 - -Wall

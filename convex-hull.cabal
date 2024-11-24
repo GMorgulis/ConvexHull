@@ -40,6 +40,7 @@ library
     , diagrams-core
     , diagrams-lib
     , diagrams-svg
+    , random
   default-language: Haskell2010
 
 executable convex-hull-exe
@@ -58,6 +59,7 @@ executable convex-hull-exe
     , diagrams-core
     , diagrams-lib
     , diagrams-svg
+    , random
   default-language: Haskell2010
 
 test-suite convex-hull-test
@@ -77,4 +79,5 @@ test-suite convex-hull-test
     , diagrams-core
     , diagrams-lib
     , diagrams-svg
+    , random
   default-language: Haskell2010
