@@ -71,8 +71,8 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
         helper (x1, y1) (x2, y2) (z:zs) group1 group2
             | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs group1 group2  -- Makes sure anchors are not added
             | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) == 0 = helper (x1, y1) (x2, y2) zs group1 group2 
-            | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- Uses cross product, adds g1
-            | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- add to g2
+            | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- left of 
+            | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- right of 
 
 
 {-Keeps all points outside the triangle. Works for everything other than points on triangle itself-}
