@@ -14,9 +14,10 @@ main = do
     points <- generateRandomPoints 300
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
-    renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
+    --renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
     print "----------------------------------------------------"
 
+{-
     if hullPoints == correctPoints 
         then do
             print "Test Passed"
@@ -39,14 +40,14 @@ main = do
     print "All points:"
     print poops
     print "----------------------------------------------------"
-
+-}
     if hullPoints == correctPoints 
         then do 
             print "Sucess"
-            exitFailure
+            exitSuccess
         else do 
             print "Failure"
-            exitSuccess
+            exitFailure
 
 
 
