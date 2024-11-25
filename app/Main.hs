@@ -8,16 +8,18 @@ import Andrew (convexHull)
 import System.Exit (exitSuccess, exitFailure)
 import Draw (generateRandomPoints, diagram)
 
-
-main :: IO ()
-main = do
+{-This generates a single random sample set of points and runs the quickHull algorithm.
+The data is checked against the correct implementation of Andrew's Algorithm (Monotone Chain".
+An svg image of the hull is created.-}
+singleTest :: IO ()
+singleTest = do 
     points <- generateRandomPoints 300
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
-    --renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
+    renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
     print "----------------------------------------------------"
 
-{-
+
     if hullPoints == correctPoints 
         then do
             print "Test Passed"
@@ -40,7 +42,7 @@ main = do
     print "All points:"
     print poops
     print "----------------------------------------------------"
--}
+
     if hullPoints == correctPoints 
         then do 
             print "Sucess"
@@ -49,9 +51,27 @@ main = do
             print "Failure"
             exitFailure
 
+{-This option is for testing high volume of random samples that works in relationship with the bash script
+called "tester.sh". This option does not give any feedback on the data, just brute force testing.-}
+multiTest :: IO ()
+multiTest = do
+    points <- generateRandomPoints 300
+    let hullPoints = sort (qh points)
+    let correctPoints = sort (convexHull points)
+    print "----------------------------------------------------"
 
+    if hullPoints == correctPoints 
+        then do 
+            print "Sucess"
+            exitSuccess
+        else do 
+            print "Failure"
+            exitFailure
 
-
+main :: IO ()
+main = do
+    singleTest
+    --multiTest
 
 
 
