@@ -11,10 +11,10 @@ import Draw (generateRandomPoints, diagram)
 
 main :: IO ()
 main = do
-    points <- generateRandomPoints 100
-    let hullPoints = sort (qh poops)
-    let correctPoints = sort (convexHull poops)
-    renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram poops hullPoints)
+    points <- generateRandomPoints 300
+    let hullPoints = sort (qh points)
+    let correctPoints = sort (convexHull points)
+    renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
     print "----------------------------------------------------"
 
     if hullPoints == correctPoints 

@@ -1,7 +1,7 @@
-module Qhseq 
+module Qhseq
     (C2, mind, maxd, qh
     ) where
-      
+
 {-
 George Morgulis 
 COMS 4995 Parallel Functional Programming
@@ -18,15 +18,15 @@ type C2 = (Double, Double)
 
 qh :: [C2] -> [C2]
 qh points = nub (helper1 points [])
-    where 
+    where
         helper1 [] hull = hull -- starter 
         helper1 (x : xs) hull =
             let m1 = maxAreaPoint a1 a2 group1
                 m2 = maxAreaPoint a1 a2 group2
                 group1 = fst (grouper a1 a2 (x:xs))
                 group2 = snd (grouper a1 a2 (x:xs))
-                a1 = mind (x:xs) 0 
-                a2 = maxd (x:xs) 0 
+                a1 = mind (x:xs) 0
+                a2 = maxd (x:xs) 0
             in a1 : a2 : helper2 a1 a2 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper3 a1 a2 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
 
         helper2 _ _ _ [] hull = hull -- upper hull
@@ -35,15 +35,15 @@ qh points = nub (helper1 points [])
                 m2 = maxAreaPoint o2 pm group2
                 group1 = fst (grouper o1 pm (y:ys)) -- always picking the elet
                 group2 = fst (grouper pm o2 (y:ys)) -- alwyas picking the left
-            in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
-        
+            in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull)
+
         helper3 _ _ _ [] hull = hull -- lower hull
         helper3 o1 o2 pm (y:ys) hull =
             let m1 = maxAreaPoint o1 pm group1
                 m2 = maxAreaPoint o2 pm group2
                 group1 = snd (grouper o1 pm (y:ys))  -- always picking the right
                 group2 = snd (grouper pm o2 (y:ys))  -- always picking the right
-            in helper3 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper3 o2 pm m2 (keepOuter o2 pm m2 group2) (m2 : hull)
+            in helper3 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper3 pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull)
 
 
 {-Computes the maximum of points by specified dimension-}
@@ -70,7 +70,7 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
         helper _ _ [] group1 group2 = (group1, group2)
         helper (x1, y1) (x2, y2) (z:zs) group1 group2
             | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs group1 group2  -- Makes sure anchors are not added
-            | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) == 0 = helper (x1, y1) (x2, y2) zs group1 group2 
+            | closeEnough ((x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1)) 0 = helper (x1, y1) (x2, y2) zs group1 group2
             | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- left of 
             | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- right of 
 
@@ -90,8 +90,8 @@ triArea (x1, y1) (x2, y2) (x3, y3) =  abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) +
 
 {-Checks if point lies inside triangle-}
 pointInTriangle :: C2 -> C2 -> C2 -> C2 -> Bool
-pointInTriangle t1 t2 t3 p = 
-    closeEnough (abs (triArea t1 t2 p) + abs (triArea t1 t3 p) + abs (triArea t2 t3 p)) (abs (triArea t1 t2 t3))
+pointInTriangle t1 t2 t3 p =
+    closeEnough (triArea t1 t2 p + triArea t1 t3 p + triArea t2 t3 p) (abs (triArea t1 t2 t3))
 
 epsilon :: Double
 epsilon = 1e-9
