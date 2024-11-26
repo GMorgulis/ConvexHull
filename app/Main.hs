@@ -13,7 +13,7 @@ The data is checked against the correct implementation of Andrew's Algorithm (Mo
 An svg image of the hull is created.-}
 singleTest :: IO ()
 singleTest = do 
-    points <- generateRandomPoints 300
+    points <- generateRandomPoints 10
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
     renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
@@ -40,7 +40,7 @@ singleTest = do
     print $ length correctPoints
     print "----------------------------------------------------"
     print "All points:"
-    print poops
+    print points
     print "----------------------------------------------------"
 
     if hullPoints == correctPoints 
@@ -55,7 +55,7 @@ singleTest = do
 called "tester.sh". This option does not give any feedback on the data, just brute force testing.-}
 multiTest :: IO ()
 multiTest = do
-    points <- generateRandomPoints 300
+    points <- generateRandomPoints 400
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
     print "----------------------------------------------------"
