@@ -54,15 +54,14 @@ maxAreaPoint :: C2 -> C2 -> [C2] -> C2
 maxAreaPoint _ anchor2 [] = anchor2
 maxAreaPoint anchor1 anchor2 points = maximumBy (comparing (triArea anchor1 anchor2)) points
 
-{-Determines whether a point lies to the right or left of a vector. The first memeber of the 
+{-Determines whether a point lies to the right or left of a vector. The first memeber of the return
 tuple are the points to the left of the vector, the second are those to the right-}
 grouper :: C2 -> C2 -> [C2] -> ([C2],[C2])
 grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
     where
         helper _ _ [] group1 group2 = (group1, group2)
         helper (x1, y1) (x2, y2) (z:zs) group1 group2
-            | (x1 == fst z && y1 == snd z) || (x2 == fst z && y2 == snd z) = helper (x1, y1) (x2, y2) zs group1 group2  -- Makes sure anchors are not added
-            | closeEnough ((x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1)) 0 = helper (x1, y1) (x2, y2) zs group1 group2
+            | closeEnough ((x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1)) 0 = helper (x1, y1) (x2, y2) zs group1 group2 -- collinear points added to neither group
             | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- left of 
             | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- right of 
 
@@ -85,8 +84,10 @@ pointInTriangle :: C2 -> C2 -> C2 -> C2 -> Bool
 pointInTriangle t1 t2 t3 p =
     closeEnough (triArea t1 t2 p + triArea t1 t3 p + triArea t2 t3 p) (abs (triArea t1 t2 t3))
 
+{-Epsilon value to mitigate floating point error-}
 epsilon :: Double
 epsilon = 1e-9
 
+{-Method to mitigate floating point error-}
 closeEnough :: Double -> Double -> Bool
 closeEnough a b = abs (a - b) < epsilon

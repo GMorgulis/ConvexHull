@@ -31,7 +31,6 @@ pointsDiagram points hullPoints = mconcat
               | (x, y) <- hullPoints ]
     ]
 
-
 -- Draw x and y axes
 axes :: Diagram B
 axes = (arrowBetween (p2 (0, -50)) (p2 (0, 410)) # lc black) <>
