@@ -27,7 +27,7 @@ qh points = nub (helper1 points [])
                 group2 = snd (grouper a1 a2 (x:xs))
                 a1 = mind (x:xs) 0
                 a2 = maxd (x:xs) 0
-            in a1 : a2 : helper2 a1 a2 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper3 a1 a2 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
+            in a1 : a2 : helper2 a1 a2 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper2 a2 a1 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
 
         helper2 _ _ _ [] hull = hull -- upper hull
         helper2 o1 o2 pm (y:ys) hull =
@@ -36,15 +36,6 @@ qh points = nub (helper1 points [])
                 group1 = fst (grouper o1 pm (y:ys)) -- always picking the elet
                 group2 = fst (grouper pm o2 (y:ys)) -- alwyas picking the left
             in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) -- important: note the order of points
-
-        helper3 _ _ _ [] hull = hull -- lower hull
-        helper3 o1 o2 pm (y:ys) hull =
-            let m1 = maxAreaPoint o1 pm group1
-                m2 = maxAreaPoint o2 pm group2
-                group1 = snd (grouper o1 pm (y:ys))  -- always picking the right
-                group2 = snd (grouper pm o2 (y:ys))  -- always picking the right
-            in helper3 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper3 pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) -- important: note the order of points
-
 
 {-Computes the maximum of points by specified dimension-}
 maxd :: [C2] -> Int -> C2
@@ -60,10 +51,11 @@ mind _ _ = error "Invalid arguements."
 
 {-Calculates the maximum area given a line segment-}
 maxAreaPoint :: C2 -> C2 -> [C2] -> C2
-maxAreaPoint anchor1 anchor2 [] = anchor2
+maxAreaPoint _ anchor2 [] = anchor2
 maxAreaPoint anchor1 anchor2 points = maximumBy (comparing (triArea anchor1 anchor2)) points
 
-{-Determines whether a point lies to the right or left of a line segment-}
+{-Determines whether a point lies to the right or left of a vector. The first memeber of the 
+tuple are the points to the left of the vector, the second are those to the right-}
 grouper :: C2 -> C2 -> [C2] -> ([C2],[C2])
 grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
     where

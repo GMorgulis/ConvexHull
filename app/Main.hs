@@ -13,7 +13,7 @@ The data is checked against the correct implementation of Andrew's Algorithm (Mo
 An svg image of the hull is created.-}
 singleTest :: IO ()
 singleTest = do 
-    points <- generateRandomPoints 10
+    points <- generateRandomPoints 400
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
     renderSVG "convexHull_with_axes.svg" (mkWidth 500) (diagram points hullPoints)
@@ -39,9 +39,9 @@ singleTest = do
     print "Correct Length"
     print $ length correctPoints
     print "----------------------------------------------------"
-    print "All points:"
-    print points
-    print "----------------------------------------------------"
+    --print "All points:"
+    --print points
+    --print "----------------------------------------------------"
 
     if hullPoints == correctPoints 
         then do 
