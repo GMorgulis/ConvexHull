@@ -12,9 +12,8 @@ This is the sequential implementaion of quickhull
 import Data.List (maximumBy, minimumBy, nub)
 import Data.Ord (comparing)
 
-
+{- Type used to represent points-}
 type C2 = (Double, Double)
-
 
 qh :: [C2] -> [C2]
 qh points = nub (helper1 points [])
