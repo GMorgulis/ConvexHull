@@ -29,7 +29,7 @@ qh points = nub (helper1 points [])
                 a2 = maxd (x:xs) 0
             in a1 : a2 : helper2 a1 a2 m1 (keepOuter a1 a2 m1 group1) (m1 : hull) ++ helper2 a2 a1 m2 (keepOuter a1 a2 m2 group2) (m2 : hull)
 
-        helper2 _ _ _ [] hull = hull -- upper hull
+        helper2 _ _ _ [] hull = hull -- calculates lower and upper hull
         helper2 o1 o2 pm (y:ys) hull =
             let m1 = maxAreaPoint o1 pm group1
                 m2 = maxAreaPoint o2 pm group2
