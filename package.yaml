@@ -26,6 +26,8 @@ dependencies:
 - diagrams-lib
 - diagrams-svg
 - random
+- parallel
+- deepseq 
 
 ghc-options:
 - -Wall
@@ -48,9 +50,11 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -O2
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+    - -eventlog
+    - -with-rtsopts=-N8
     dependencies:
     - convex-hull
 
@@ -61,6 +65,6 @@ tests:
     ghc-options:
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+    - -with-rtsopts=-N8
     dependencies:
     - convex-hull
