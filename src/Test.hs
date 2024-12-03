@@ -64,7 +64,7 @@ singleTest = do
 called "tester.sh". This option does not give any feedback on the data, just brute force testing.-}
 multiTest :: IO ()
 multiTest = do
-    points <- generateRandomPoints 1000000
+    points <- generateRandomPoints 2000000
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
     print "----------------------------------------------------"
@@ -82,40 +82,36 @@ timeTest :: IO ()
 timeTest = do 
     points <- generateRandomPoints 10000000
 
-    let correctPoints = sort (convexHull points)
+    --let correctPoints = sort (convexHull points)
+
+    print "Starting Seq Test"
 
     startTime <- getCPUTime
-    let seqPoints = sort (qh points)
+    let seqPoints = qh points
     endTime <- seqPoints `deepseq` getCPUTime
     print (endTime - startTime)
 
+    print "Starting Par Test"
 
     startTime <- getCPUTime
-    let parPoints = sort (qhull points)
+    let parPoints = qhull points
     endTime <- parPoints `deepseq` getCPUTime
     print (endTime - startTime)
 
-    if seqPoints == parPoints
-        then  
-            print "good"
-        else 
-            print "bad"
-
-    if seqPoints == correctPoints 
-        then 
-            print "seq works"
-        else 
-            print "seq not working"
-
-    if parPoints == correctPoints 
-        then 
-            print "par works"
-        else 
-            print "par not workin"
 
     print "Complete!"
 
 
 
+{-This test will generate a random set of points and test the parallel and sequential version x amount of times-}
+{-avgTest :: Double -> (Double, Double) -> Double 
+avgTest x points avg = helper x points 0
+    where 
+        helper -}
+
+
+
 -- 50000000 for time testing (3m 24)
 -- 10000000
+
+--stack exec convex-hull-exe -- +RTS -ls -s -N2

@@ -18,8 +18,6 @@ import Control.Parallel (par, pseq)
 type C2 = (Double, Double)
 
 qhull :: [C2] -> [C2]
---qhull points = nub (a1 : a2 : (hull1 `par` (hull2 `pseq` combine hull1 hull2)))
---qhull points = nub (a1 : a2 : (hull1 ++ hull2))
 qhull points = nub (a1 : a2 : h)
     where
         a1 = mind points 0
