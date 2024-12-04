@@ -1,5 +1,5 @@
 module Qhpar
-    (qhull
+    (qhull, maxd
     ) where
 
 {-
@@ -26,32 +26,33 @@ qhull points = nub (a1 : a2 : h)
         group2 = snd (grouper a1 a2 points)
         m1 = maxAreaPoint a1 a2 group1
         m2 = maxAreaPoint a1 a2 group2
-        hull1 = helper2 a1 a2 m1 (keepOuter a1 a2 m1 group1) [m1]
-        hull2 = helper2 a2 a1 m2 (keepOuter a1 a2 m2 group2) [m2]
+        hull1 = parHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) [m1]
+        hull2 = parHelper a2 a1 m2 (keepOuter a1 a2 m2 group2) [m2]
         h = par hull1 (hull2 ++ hull1)
 
-        helper2 _ _ _ [] hull = hull -- calculates lower and upper hull
-        helper2 o1 o2 pm (y:ys) hull =
-            let m1 = maxAreaPoint o1 pm group1
-                m2 = maxAreaPoint o2 pm group2
-                group1 = fst (grouper o1 pm (y:ys)) -- always picking the left
-                group2 = fst (grouper pm o2 (y:ys)) -- alwyas picking the left
-            in helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) ++ helper2 pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) -- important: note the order of points
-
-        {-helper2 :: C2 -> C2 -> C2 -> [C2] -> [C2] -> [C2]
-        helper2 _ _ _ [] hull = hull
-        helper2 o1 o2 pm (y:ys) hull =
-            let m1 = maxAreaPoint o1 pm group1
-                m2 = maxAreaPoint pm o2 group2
-                group1 = fst (grouper o1 pm (y:ys))
-                group2 = fst (grouper pm o2 (y:ys))
-                hull1 = helper2 o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull)
-                hull2 = helper2 pm o2 m2 (keepOuter pm o2 m2 group2) (m2 : hull)
-            in hull1 `par` (hull2 `par` (combine hull1 hull2))-}
-
-        -- A more efficient way to combine the two hulls
-        combine :: [C2] -> [C2] -> [C2]
-        combine hull1 hull2 = hull1 ++ hull2  -- Consider alternatives if performance is an issue
+{-Parallel verison of hull helper-}
+parHelper :: C2 -> C2 -> C2 -> [C2] -> [C2] -> [C2]
+parHelper _ _ _ [] hull = hull -- calculates lower and upper hull
+parHelper o1 o2 pm (y:ys) hull = par hull1 (hull2 ++ hull1)
+    where 
+        m1 = maxAreaPoint o1 pm group1
+        m2 = maxAreaPoint o2 pm group2
+        group1 = fst (grouper o1 pm (y:ys)) -- always picking the left
+        group2 = fst (grouper pm o2 (y:ys)) -- always picking the left
+        hull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
+        hull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
+ 
+{-Sequential version of hull helper-}
+seqHelper :: C2 -> C2 -> C2 -> [C2] -> [C2] -> [C2]
+seqHelper _ _ _ [] hull = hull -- calculates lower and upper hull
+seqHelper o1 o2 pm (y:ys) hull = hull2 ++ hull1
+    where 
+        m1 = maxAreaPoint o1 pm group1
+        m2 = maxAreaPoint o2 pm group2
+        group1 = fst (grouper o1 pm (y:ys)) -- always picking the left
+        group2 = fst (grouper pm o2 (y:ys)) -- always picking the left
+        hull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
+        hull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
 
 
 

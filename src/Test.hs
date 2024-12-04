@@ -13,7 +13,7 @@ import Diagrams.Backend.SVG (renderSVG)
 import Andrew (convexHull)
 import System.Exit (exitSuccess, exitFailure)
 import Draw (generateRandomPoints, diagram)
-import Qhpar (qhull)
+import Qhpar (qhull, maxd)
 import System.CPUTime
 import Control.DeepSeq
 
@@ -64,7 +64,7 @@ singleTest = do
 called "tester.sh". This option does not give any feedback on the data, just brute force testing.-}
 multiTest :: IO ()
 multiTest = do
-    points <- generateRandomPoints 2000000
+    points <- generateRandomPoints 1000000
     let hullPoints = sort (qh points)
     let correctPoints = sort (convexHull points)
     print "----------------------------------------------------"
@@ -80,9 +80,8 @@ multiTest = do
 {-This test does not check for correctnes. Instead, it should be used for testing time-}
 timeTest :: IO ()
 timeTest = do 
-    points <- generateRandomPoints 10000000
-
-    --let correctPoints = sort (convexHull points)
+    print "Starting Point Generation"
+    points <- generateRandomPoints 60000000
 
     print "Starting Seq Test"
 
@@ -93,13 +92,16 @@ timeTest = do
 
     print "Starting Par Test"
 
-    startTime <- getCPUTime
-    let parPoints = qhull points
-    endTime <- parPoints `deepseq` getCPUTime
-    print (endTime - startTime)
+    startT <- getCPUTime
+    let parPoints = qhull points 
+    endT <- parPoints `deepseq` getCPUTime
+    print (endT - startT)
 
 
     print "Complete!"
+
+
+
 
 
 
@@ -113,5 +115,6 @@ avgTest x points avg = helper x points 0
 
 -- 50000000 for time testing (3m 24)
 -- 10000000
+-- 70000000
 
 --stack exec convex-hull-exe -- +RTS -ls -s -N2

@@ -5,8 +5,8 @@ import Test (singleTest, multiTest, timeTest)
 
 main :: IO ()
 main = do
-    --singleTest
+    singleTest
     --multiTest
-    timeTest
+    --timeTest
 
 
