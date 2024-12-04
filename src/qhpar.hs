@@ -33,14 +33,18 @@ qhull points = nub (a1 : a2 : h)
 {-Parallel verison of hull helper-}
 parHelper :: C2 -> C2 -> C2 -> [C2] -> [C2] -> [C2]
 parHelper _ _ _ [] hull = hull -- calculates lower and upper hull
-parHelper o1 o2 pm (y:ys) hull = par hull1 (hull2 ++ hull1)
+parHelper o1 o2 pm (y:ys) hull 
+    | length group1 + length group2 > 100000 = par phull1 (phull2 ++ phull1) 
+    | otherwise = shull1 ++ shull2
     where 
         m1 = maxAreaPoint o1 pm group1
         m2 = maxAreaPoint o2 pm group2
         group1 = fst (grouper o1 pm (y:ys)) -- always picking the left
         group2 = fst (grouper pm o2 (y:ys)) -- always picking the left
-        hull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
-        hull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
+        phull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
+        phull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
+        shull1 = seqHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
+        shull2 = seqHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
  
 {-Sequential version of hull helper-}
 seqHelper :: C2 -> C2 -> C2 -> [C2] -> [C2] -> [C2]
@@ -51,9 +55,8 @@ seqHelper o1 o2 pm (y:ys) hull = hull2 ++ hull1
         m2 = maxAreaPoint o2 pm group2
         group1 = fst (grouper o1 pm (y:ys)) -- always picking the left
         group2 = fst (grouper pm o2 (y:ys)) -- always picking the left
-        hull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
-        hull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
-
+        hull1 = seqHelper o1 pm m1 (keepOuter o1 pm m1 group1) (m1 : hull) 
+        hull2 = seqHelper pm o2 m2 (keepOuter o2 pm m2 group2) (m2 : hull) 
 
 
 {-Computes the maximum of points by specified dimension-}
@@ -72,6 +75,7 @@ mind _ _ = error "Invalid arguements."
 maxAreaPoint :: C2 -> C2 -> [C2] -> C2
 maxAreaPoint _ anchor2 [] = anchor2
 maxAreaPoint anchor1 anchor2 points = maximumBy (comparing (triArea anchor1 anchor2)) points
+
 
 {-Determines whether a point lies to the right or left of a vector. The first memeber of the return
 tuple are the points to the left of the vector, the second are those to the right-}

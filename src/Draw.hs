@@ -12,15 +12,15 @@ import Andrew (convexHull)
 import System.Exit (exitSuccess, exitFailure)
 
 -- Generate a random point (x, y) where x and y are between 0.0 and 400.0
-randomPoint :: IO (Double, Double)
-randomPoint = do
-    x <- randomRIO (0.0, 400.0)
-    y <- randomRIO (0.0, 400.0)
+randomPoint :: Double -> IO (Double, Double)
+randomPoint x = do
+    x <- randomRIO ((-1 * x), x)
+    y <- randomRIO ((-1 * x), x)
     return (x, y)
 
 -- Generate a list of random points (n points)
 generateRandomPoints :: Int -> IO [(Double, Double)]
-generateRandomPoints n = sequence $ replicate n randomPoint
+generateRandomPoints n = sequence $ replicate n (randomPoint 100000000)
 
 -- Draw the points with hull points in red and the rest in blue
 pointsDiagram :: [(Double, Double)] -> [(Double, Double)] -> Diagram B
