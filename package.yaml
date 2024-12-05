@@ -28,6 +28,7 @@ dependencies:
 - random
 - parallel
 - deepseq 
+- vector
 
 ghc-options:
 - -Wall
@@ -56,7 +57,7 @@ executables:
     - -threaded
     - -rtsopts
     - -eventlog
-    - -with-rtsopts=-N8
+    - -with-rtsopts=-N
     dependencies:
     - convex-hull
 
@@ -67,6 +68,6 @@ tests:
     ghc-options:
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N8
+    - -with-rtsopts=-N
     dependencies:
     - convex-hull

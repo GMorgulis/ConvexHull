@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wno-unused-do-bind #-}
 module Test 
     (
         singleTest,

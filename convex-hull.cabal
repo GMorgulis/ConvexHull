@@ -30,7 +30,9 @@ library
       Lib
       Qhpar
       Qhseq
+      QuickHullV
       Test
+      VTest
   other-modules:
       Paths_convex_hull
   autogen-modules:
@@ -47,6 +49,7 @@ library
     , diagrams-svg
     , parallel
     , random
+    , vector
   default-language: Haskell2010
 
 executable convex-hull-exe
@@ -57,7 +60,7 @@ executable convex-hull-exe
       Paths_convex_hull
   hs-source-dirs:
       app
-  ghc-options: -Wall -eventlog -fexcess-precision -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -threaded -rtsopts -eventlog -with-rtsopts=-N8
+  ghc-options: -Wall -eventlog -fexcess-precision -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -O2 -threaded -rtsopts -eventlog -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , containers
@@ -68,6 +71,7 @@ executable convex-hull-exe
     , diagrams-svg
     , parallel
     , random
+    , vector
   default-language: Haskell2010
 
 test-suite convex-hull-test
@@ -79,7 +83,7 @@ test-suite convex-hull-test
       Paths_convex_hull
   hs-source-dirs:
       test
-  ghc-options: -Wall -eventlog -fexcess-precision -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N8
+  ghc-options: -Wall -eventlog -fexcess-precision -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , containers
@@ -90,4 +94,5 @@ test-suite convex-hull-test
     , diagrams-svg
     , parallel
     , random
+    , vector
   default-language: Haskell2010

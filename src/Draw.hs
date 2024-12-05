@@ -10,6 +10,12 @@ import Diagrams.Backend.SVG (renderSVG)
 import System.Random (randomRIO)
 import Andrew (convexHull)
 import System.Exit (exitSuccess, exitFailure)
+import QuickHullV (V2, VV2)
+import qualified Data.Vector as V
+
+
+
+
 
 -- Generate a random point (x, y) where x and y are between 0.0 and 400.0
 randomPoint :: Double -> IO (Double, Double)
