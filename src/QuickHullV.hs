@@ -25,7 +25,7 @@ type VV3 = V.Vector VV2
 --------------------------------------------------------------------------------------------
 
 quickh :: VV2 -> VV2
-quickh points = V.fromList . nub . V.toList $ V.cons a1 (V.cons a2 h)
+quickh points = V.cons a1 (V.cons a2 h)
   where
     a1 = minv points
     a2 = maxv points
@@ -33,16 +33,14 @@ quickh points = V.fromList . nub . V.toList $ V.cons a1 (V.cons a2 h)
     group2 = (grouper a1 a2 points) V.!1
     m1 = maxAreaPoint a1 a2 group1
     m2 = maxAreaPoint a1 a2 group2
-    hull1 = parHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
-    hull2 = parHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2)
-    h = hull1 `par` (hull2 `pseq` V.concat [hull2, hull1])
+    hull1 = seqHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
+    hull2 = seqHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2)
+    h = hull1 V.++ hull2
 
 
 parHelper :: V2 -> V2 -> V2 -> VV2 -> VV2 -> VV2
 parHelper _ _ _ points hull | V.null points = hull
-parHelper o1 o2 pm points hull
-    | V.length group1 + V.length group2 > 100000 = phull1 `par` (phull2 `pseq` V.concat [phull2, phull1])
-    | otherwise = V.concat [shull1, shull2]
+parHelper o1 o2 pm points hull = V.concat [shull1, shull2]
   where
     m1 = maxAreaPoint o1 pm group1
     m2 = maxAreaPoint o2 pm group2
@@ -72,15 +70,12 @@ maxv = V.maximumBy (comparing (V.! 0))
 
 {-Function to find the V2 with the maximum x-coordinate-}
 minv :: VV2 -> V2
-minv = V.maximumBy (comparing (V.! 0))
+minv = V.minimumBy (comparing (V.! 0))
 
 {-Furthest point from a line-}
 maxAreaPoint :: V2 -> V2 -> VV2 -> V2
-maxAreaPoint anchor1 anchor2 points =
-    let areas = V.map (triArea anchor1 anchor2) points
-        maxIndex = V.maxIndex areas
-    in points V.! maxIndex
-
+maxAreaPoint _ anchor2 points | V.null points = anchor2
+maxAreaPoint anchor1 anchor2 points = V.maximumBy (comparing (triArea anchor1 anchor2)) points
 
 {-Groups by determinant (left, right)-}
 grouper :: V2 -> V2 -> VV2 -> VV3

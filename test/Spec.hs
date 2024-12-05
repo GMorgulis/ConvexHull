@@ -19,14 +19,13 @@ maxArea = do
     print "max area test"
     let a1 = V.fromList [0,0] :: Q.V2
         a2 = V.fromList [5,0] :: Q.V2
-        p1 = V.fromList [1,0] :: Q.V2
+        p1 = V.fromList [0,0] :: Q.V2
         p2 = V.fromList [1,1] :: Q.V2
         p3 = V.fromList [-2,-2] :: Q.V2
         points = V.fromList [p1, p2, p3] :: Q.VV2
     print points
-    print (maxAreaPoint a1 a1 points)
+    print (maxAreaPoint a1 a2 points)
     
-
 area :: IO()
 area = do
     print "tri area test"
