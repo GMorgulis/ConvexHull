@@ -29,10 +29,10 @@ dependencies:
 - parallel
 - deepseq 
 - vector
+- bytestring
 
 ghc-options:
 - -Wall
-- -eventlog
 - -fexcess-precision
 - -Wcompat
 - -Widentities

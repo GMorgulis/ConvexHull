@@ -80,7 +80,7 @@ multiTest = do
 timeTest :: IO ()
 timeTest = do 
     print "Starting Point Generation"
-    points <- generateRandomPoints 60000000
+    points <- generateRandomPoints 100000
 
     print "Starting Seq Test"
 
@@ -88,6 +88,9 @@ timeTest = do
     let seqPoints = qh points
     endTime <- seqPoints `deepseq` getCPUTime
     print (endTime - startTime)
+    print "starting length"
+    print (length seqPoints)
+    print "done with length"
 
     print "Starting Par Test"
 

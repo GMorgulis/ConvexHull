@@ -10,6 +10,7 @@ import Data.List(sort, (\\))
 import Control.DeepSeq
 import Andrew (convexHull)
 import Data.List (maximumBy, minimumBy, nub)
+import Qhseq (qh)
 
 
 -- Generate a random point (x, y) where x and y are between -x and x
@@ -21,7 +22,7 @@ vRandomPoint x = do
 
 -- Generate a list of random points (n points)
 vGeneratePoints :: Int -> IO VV2
-vGeneratePoints n = V.fromList <$> sequence (replicate n (vRandomPoint 10000000))
+vGeneratePoints n = V.fromList <$> sequence (replicate n (vRandomPoint 100000000))
 
 
 vv2ToListOfTuples :: VV2 -> [(Double, Double)] 
@@ -31,32 +32,23 @@ vv2ToListOfTuples vv2 = V.toList $ V.map (\v -> (v V.! 0, v V.! 1)) vv2
 oneTest :: IO ()
 oneTest = do 
     print "Starting Point Generation"
-    points <- vGeneratePoints 100000
+    points <- vGeneratePoints 10000000
+    
     let convertedPoint = vv2ToListOfTuples points
 
-    --print points
-
     print "Starting Test"
-
     startT <- getCPUTime
     let parPoints = quickh points 
     endT <- parPoints `deepseq` getCPUTime
-    --print (endT - startT)
+    print(endT - startT)
 
-    let correctPoints = sort (convexHull convertedPoint)
-
-    print ("cooorect")
-    print correctPoints
-
-    print "my "
-    let myPoints = (sort (nub (vv2ToListOfTuples parPoints)))
-    print myPoints
-
-    print (correctPoints == myPoints)
-
-
-
+    print "Starting Seq Test"
+    startTime <- getCPUTime
+    let seqPoints = qh convertedPoint
+    endTime <- seqPoints `deepseq` getCPUTime
+    print (endTime - startTime)
 
     print "Complete!"
 
 
+--stack exec convex-hull-exe -- +RTS -ls -s -N2

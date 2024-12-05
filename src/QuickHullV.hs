@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use camelCase" #-}
 module QuickHullV (V2, VV2, quickh, maxAreaPoint, triArea, grouper, maxv, minv, keepOuter)where
 
 {-
@@ -10,11 +8,11 @@ This is the sequential implementaion of quickhull
 -}
 
 
-import Data.List (maximumBy, minimumBy, nub)
 import Data.Ord (comparing)
 import qualified Data.Vector as V
 import Control.Parallel (par, pseq)
 import Control.DeepSeq
+--Control.Parallel.Strategies (parList, rseq, using)
 
 
 {-New vector type-}
@@ -33,19 +31,22 @@ quickh points = V.cons a1 (V.cons a2 h)
     group2 = (grouper a1 a2 points) V.!1
     m1 = maxAreaPoint a1 a2 group1
     m2 = maxAreaPoint a1 a2 group2
-    hull1 = seqHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
-    hull2 = seqHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2)
-    h = hull1 V.++ hull2
+    hull1 = parHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
+    hull2 = parHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2)
+    h = hull1 `par` (hull2 `pseq` (hull2 V.++ hull1))
 
 
 parHelper :: V2 -> V2 -> V2 -> VV2 -> VV2 -> VV2
 parHelper _ _ _ points hull | V.null points = hull
-parHelper o1 o2 pm points hull = V.concat [shull1, shull2]
+parHelper o1 o2 pm points hull 
+  | length points > 100000 = p
+  | otherwise = shull1 V.++ shull2 
   where
     m1 = maxAreaPoint o1 pm group1
     m2 = maxAreaPoint o2 pm group2
     group1 = (grouper o1 pm points) V.!0
     group2 = (grouper pm o2 points) V.!0
+    p = phull1 `par` (phull2 `pseq` (phull2 V.++ phull1))
     phull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (V.cons m1 hull)
     phull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (V.cons m2 hull)
     shull1 = seqHelper o1 pm m1 (keepOuter o1 pm m1 group1) (V.cons m1 hull)
@@ -54,7 +55,7 @@ parHelper o1 o2 pm points hull = V.concat [shull1, shull2]
 
 seqHelper :: V2 -> V2 -> V2 -> VV2 -> VV2 -> VV2
 seqHelper _ _ _ points hull | V.null points = hull
-seqHelper o1 o2 pm points hull = V.concat [hull2, hull1]
+seqHelper o1 o2 pm points hull = hull2 V.++ hull1
   where
     m1 = maxAreaPoint o1 pm group1
     m2 = maxAreaPoint o2 pm group2
