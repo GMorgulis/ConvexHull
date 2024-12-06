@@ -35,18 +35,22 @@ readPointsFromFile filePath = do
 
 main :: IO ()
 main = do
+    print "here"
+    runner
+    --generator
+
+
+runner :: IO ()
+runner = do
     print "Reading"
     points <- readPointsFromFile "random_points.txt"
     --print points
     print "Starting Test"
     startT <- getCPUTime
-    let parPoints = quickh points 
+    let parPoints = quickh points 8
     endT <- parPoints `deepseq` getCPUTime
     print(endT - startT)
     print "done"
-
-
-
 
 
 

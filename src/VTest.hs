@@ -38,7 +38,7 @@ oneTest = do
 
     print "Starting Test"
     startT <- getCPUTime
-    let parPoints = quickh points 
+    let parPoints = quickh points 8
     endT <- parPoints `deepseq` getCPUTime
     print(endT - startT)
 

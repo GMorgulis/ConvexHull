@@ -30,6 +30,7 @@ dependencies:
 - deepseq 
 - vector
 - bytestring
+- vector-split
 
 ghc-options:
 - -Wall

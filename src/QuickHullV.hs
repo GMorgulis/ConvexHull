@@ -10,8 +10,11 @@ This is the sequential implementaion of quickhull
 
 import Data.Ord (comparing)
 import qualified Data.Vector as V
+import qualified Data.Vector.Split as VS
 import Control.Parallel (par, pseq)
+import Control.Parallel.Strategies(parMap, rpar)
 import Control.DeepSeq
+import Data.Sequence (chunksOf)
 --Control.Parallel.Strategies (parList, rseq, using)
 
 
@@ -22,18 +25,30 @@ type VV3 = V.Vector VV2
 
 --------------------------------------------------------------------------------------------
 
-quickh :: VV2 -> VV2
-quickh points = V.cons a1 (V.cons a2 h)
+quickh :: VV2 -> Int -> VV2
+quickh points n = V.cons a1 (V.cons a2 h)
   where
-    a1 = minv points
-    a2 = maxv points
-    group1 = (grouper a1 a2 points) V.!0
-    group2 = (grouper a1 a2 points) V.!1
-    m1 = maxAreaPoint a1 a2 group1
-    m2 = maxAreaPoint a1 a2 group2
-    hull1 = parHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
-    hull2 = parHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2)
-    h = hull1 `par` (hull2 `pseq` (hull2 V.++ hull1))
+    apar1 = parMinv points 8
+    apar2 = parMaxv points 8
+    apar = apar2 `par` (apar1 `pseq`(apar1, apar2))
+    a1 = fst apar
+    a2 = snd apar
+    hull1 = starter points a1 a2 0 
+    hull2 = starter points a1 a2 1
+    h = hull1 `par` (hull2 `pseq` (hull1 V.++ hull2))
+
+starter :: VV2 -> V2 -> V2 -> Int -> VV2
+starter points a1 a2 which 
+  | which == 0 = hull1
+  | which == 1 = hull2
+  | otherwise = error "Invalid arguments provided to starter (can be 0 or 1)"
+    where
+      group1 = (grouper a1 a2 points) V.!0
+      group2 = (grouper a1 a2 points) V.!1
+      m1 = parMaxAreaPoint a1 a2 group1 8
+      m2 = parMaxAreaPoint a1 a2 group2 8
+      hull1 = parHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
+      hull2 = parHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2) 
 
 
 parHelper :: V2 -> V2 -> V2 -> VV2 -> VV2 -> VV2
@@ -64,14 +79,39 @@ seqHelper o1 o2 pm points hull = hull2 V.++ hull1
     hull1 = seqHelper o1 pm m1 (keepOuter o1 pm m1 group1) (V.cons m1 hull)
     hull2 = seqHelper pm o2 m2 (keepOuter o2 pm m2 group2) (V.cons m2 hull)
 
+-------------------------------------------------------------------------------------------------------
+parMaxv :: VV2 -> Int -> V2
+parMaxv points n =
+  let c = max 1 (V.length points `div` n)  
+      chunks = VS.chunksOf c points
+      maxChunks = parMap rpar maxv chunks  
+  in maxv (V.fromList maxChunks)           
+
 
 {-Function to find the V2 with the maximum x-coordinate-}
 maxv :: VV2 -> V2
 maxv = V.maximumBy (comparing (V.! 0))
 
+parMinv :: VV2 -> Int -> V2
+parMinv points n =
+  let c = max 1 (V.length points `div` n)  
+      chunks = VS.chunksOf c points
+      maxChunks = parMap rpar minv chunks  
+  in minv (V.fromList maxChunks)   
+
 {-Function to find the V2 with the maximum x-coordinate-}
 minv :: VV2 -> V2
 minv = V.minimumBy (comparing (V.! 0))
+
+--------------------------------------------------------------------------------------------------------
+
+parMaxAreaPoint :: V2 -> V2 -> VV2 -> Int -> V2
+parMaxAreaPoint a1 a2 points n = 
+  let c = max 1 (V.length points `div` n)  
+      chunks = VS.chunksOf c points
+      maxChunks = parMap rpar (maxAreaPoint a1 a2) chunks  
+  in maxAreaPoint a1 a2 (V.fromList maxChunks)
+
 
 {-Furthest point from a line-}
 maxAreaPoint :: V2 -> V2 -> VV2 -> V2
