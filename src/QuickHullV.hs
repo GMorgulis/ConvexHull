@@ -1,4 +1,4 @@
-module QuickHullV (V2, VV2, quickh, maxAreaPoint, triArea, grouper, maxv, minv, keepOuter)where
+module QuickHullV (V2, VV2, quickh)where
 
 {-
 George Morgulis 
@@ -14,7 +14,6 @@ import qualified Data.Vector.Split as VS
 import Control.Parallel (par, pseq)
 import Control.Parallel.Strategies(parMap, rpar, rdeepseq)
 import Control.DeepSeq
-import GHC.IO.Handle (hGetChar, hClose)
 --Control.Parallel.Strategies (parList, rseq, using)
 
 
@@ -30,10 +29,10 @@ quickh points n = V.cons a1 (V.cons a2 hh)
   where
     a1 = minv points
     a2 = maxv points
-    hh = s points a1 a2 1
+    hh = starter points a1 a2 n
 
-s :: VV2 -> V2 -> V2 -> Int -> VV2
-s points a1 a2 d = V.cons m1 (V.cons m2 h) 
+starter :: VV2 -> V2 -> V2 -> Int -> VV2
+starter points a1 a2 d = V.cons m1 (V.cons m2 h) 
   where 
       group1 = fst (grouper a1 a2 points) 
       group2 = snd (grouper a1 a2 points) 
@@ -44,7 +43,6 @@ s points a1 a2 d = V.cons m1 (V.cons m2 h)
       h3 = ph group2 a2 m2 V.empty d
       h4 = ph group2 m2 a1 V.empty d 
       h = h1 V.++ h2 V.++ h3 V.++ h4 
-
 
 ph :: VV2 -> V2 -> V2 -> VV2-> Int -> VV2 
 ph points a1 a2 hull d 
@@ -115,15 +113,6 @@ determinant anchor1 anchor2 point = (w1 - z1) * (u2 - z2) - (w2 - z2) * (u1 - z1
     w2 = snd anchor2 
     u1 = fst point 
     u2 = snd point 
-
-{-Keeps points outside a triangle-}
-keepOuter :: V2 -> V2 -> V2 -> VV2 -> VV2
-keepOuter t1 t2 t3 = V.filter (not . pointInTriangle t1 t2 t3)
-
-{-Finds points inside a triangle-}
-pointInTriangle :: V2 -> V2 -> V2 -> V2 -> Bool
-pointInTriangle t1 t2 t3 p =
-    closeEnough (triArea t1 t2 p + triArea t1 t3 p + triArea t2 t3 p) (triArea t1 t2 t3)
 
 {-Area for triangle-}
 triArea :: V2 -> V2 -> V2 -> Double
