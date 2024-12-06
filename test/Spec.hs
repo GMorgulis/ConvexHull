@@ -1,12 +1,12 @@
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as VU
 import System.Random (randomRIO)
 import QuickHullV (V2, VV2, quickh)
 import System.CPUTime
-import Data.List(sort, (\\))
+import Data.List (sort, (\\), maximumBy, minimumBy, nub)
 import Control.DeepSeq
 import Andrew (convexHull)
-import Data.List (maximumBy, minimumBy, nub)
 import Qhseq (qh)
+
 
 
 -- Generate a random point (x, y) where x and y are between -x and x
@@ -14,24 +14,23 @@ vRandomPoint :: Double -> IO V2
 vRandomPoint x = do
     xCoord <- randomRIO (-x, x)
     yCoord <- randomRIO (-x, x)
-    return $ V.fromList [xCoord, yCoord]
+    return (xCoord, yCoord)
 
 -- Generate a list of random points (n points)
 vGeneratePoints :: Int -> IO VV2
-vGeneratePoints n = V.fromList <$> sequence (replicate n (vRandomPoint 100000000))
+vGeneratePoints n = VU.replicateM n (vRandomPoint 100000000)
 
+-- Convert VV2 to a list of tuples
+vv2ToListOfTuples :: VV2 -> [(Double, Double)]
+vv2ToListOfTuples = VU.toList
 
-vv2ToListOfTuples :: VV2 -> [(Double, Double)] 
-vv2ToListOfTuples vv2 = V.toList $ V.map (\v -> (v V.! 0, v V.! 1)) vv2
-
-{-This test does not check for correctnes. Instead, it should be used for testing time-}
+{-This test does not check for correctness. Instead, it should be used for testing time-}
 main :: IO ()
-main = do 
+main = do
     print "Starting Point Generation"
     points <- vGeneratePoints 10000000
-    
-    let convertedPoint = vv2ToListOfTuples points
 
+    let convertedPoint = vv2ToListOfTuples points
 
     print "Starting Seq Test"
     startTime <- getCPUTime
@@ -43,12 +42,14 @@ main = do
     startT <- getCPUTime
     let parPoints = sort (nub (vv2ToListOfTuples (quickh points 8)))
     endT <- parPoints `deepseq` getCPUTime
-    print(endT - startT)
+    print (endT - startT)
 
     print (length parPoints)
-    if seqPoints == parPoints then print "Test Passed!" else print "test failed!"
+    print (length seqPoints)
+    if seqPoints == parPoints
+        then print "Test Passed!"
+        else print "Test Failed!"
 
     print "Complete!"
-
 
 --stack exec convex-hull-exe -- +RTS -ls -s -N2

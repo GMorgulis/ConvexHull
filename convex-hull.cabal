@@ -32,7 +32,6 @@ library
       Qhseq
       QuickHullV
       Test
-      VTest
   other-modules:
       Paths_convex_hull
   autogen-modules:

@@ -4,104 +4,84 @@ module QuickHullV (V2, VV2, quickh, maxAreaPoint, triArea, grouper, maxv, minv, 
 George Morgulis 
 COMS 4995 Parallel Functional Programming
 
-This is the sequential implementaion of quickhull
+This is the paralel implementaion of quickhull
 -}
 
 
 import Data.Ord (comparing)
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Split as VS
 import Control.Parallel (par, pseq)
-import Control.Parallel.Strategies(parMap, rpar)
+import Control.Parallel.Strategies(parMap, rpar, rdeepseq)
 import Control.DeepSeq
-import Data.Sequence (chunksOf)
+import GHC.IO.Handle (hGetChar, hClose)
 --Control.Parallel.Strategies (parList, rseq, using)
 
 
 {-New vector type-}
-type V2 = V.Vector Double
+type V2 = (Double, Double)
 type VV2 = V.Vector V2
-type VV3 = V.Vector VV2
+--type VV3 = V.Vector VV2
 
 --------------------------------------------------------------------------------------------
 
 quickh :: VV2 -> Int -> VV2
-quickh points n = V.cons a1 (V.cons a2 h)
+quickh points n = V.cons a1 (V.cons a2 hh)
   where
-    apar1 = parMinv points 8
-    apar2 = parMaxv points 8
-    apar = apar2 `par` (apar1 `pseq`(apar1, apar2))
-    a1 = fst apar
-    a2 = snd apar
-    hull1 = starter points a1 a2 0 
-    hull2 = starter points a1 a2 1
-    h = hull1 `par` (hull2 `pseq` (hull1 V.++ hull2))
+    a1 = minv points
+    a2 = maxv points
+    hh = s points a1 a2 1
 
-starter :: VV2 -> V2 -> V2 -> Int -> VV2
-starter points a1 a2 which 
-  | which == 0 = hull1
-  | which == 1 = hull2
-  | otherwise = error "Invalid arguments provided to starter (can be 0 or 1)"
-    where
-      group1 = (grouper a1 a2 points) V.!0
-      group2 = (grouper a1 a2 points) V.!1
-      m1 = parMaxAreaPoint a1 a2 group1 8
-      m2 = parMaxAreaPoint a1 a2 group2 8
-      hull1 = parHelper a1 a2 m1 (keepOuter a1 a2 m1 group1) (V.singleton m1)
-      hull2 = parHelper a2 a1 m2 (keepOuter a2 a1 m2 group2) (V.singleton m2) 
+s :: VV2 -> V2 -> V2 -> Int -> VV2
+s points a1 a2 d = V.cons m1 (V.cons m2 h) 
+  where 
+      group1 = fst (grouper a1 a2 points) 
+      group2 = snd (grouper a1 a2 points) 
+      m1 = maxAreaPoint a1 a2 group1 
+      m2 = maxAreaPoint a1 a2 group2
+      h1 = ph group1 a1 m1 V.empty d 
+      h2 = ph group1 m1 a2 V.empty d 
+      h3 = ph group2 a2 m2 V.empty d
+      h4 = ph group2 m2 a1 V.empty d 
+      h = h1 V.++ h2 V.++ h3 V.++ h4 
 
 
-parHelper :: V2 -> V2 -> V2 -> VV2 -> VV2 -> VV2
-parHelper _ _ _ points hull | V.null points = hull
-parHelper o1 o2 pm points hull 
-  | length points > 100000 = p
-  | otherwise = shull1 V.++ shull2 
-  where
-    m1 = maxAreaPoint o1 pm group1
-    m2 = maxAreaPoint o2 pm group2
-    group1 = (grouper o1 pm points) V.!0
-    group2 = (grouper pm o2 points) V.!0
-    p = phull1 `par` (phull2 `pseq` (phull2 V.++ phull1))
-    phull1 = parHelper o1 pm m1 (keepOuter o1 pm m1 group1) (V.cons m1 hull)
-    phull2 = parHelper pm o2 m2 (keepOuter o2 pm m2 group2) (V.cons m2 hull)
-    shull1 = seqHelper o1 pm m1 (keepOuter o1 pm m1 group1) (V.cons m1 hull)
-    shull2 = seqHelper pm o2 m2 (keepOuter o2 pm m2 group2) (V.cons m2 hull)
+ph :: VV2 -> V2 -> V2 -> VV2-> Int -> VV2 
+ph points a1 a2 hull d 
+  | V.null points = V.empty 
+  | otherwise = V.cons m1 h
+  where 
+    group = fst (grouper a1 a2 points)
+    m1 = maxAreaPoint a1 a2 group
+    h1 = ph group a1 m1 hull d 
+    h2 = ph group m1 a2 hull d 
+    h = h1 V.++ h2
 
 
-seqHelper :: V2 -> V2 -> V2 -> VV2 -> VV2 -> VV2
-seqHelper _ _ _ points hull | V.null points = hull
-seqHelper o1 o2 pm points hull = hull2 V.++ hull1
-  where
-    m1 = maxAreaPoint o1 pm group1
-    m2 = maxAreaPoint o2 pm group2
-    group1 = (grouper o1 pm points) V.!0
-    group2 = (grouper pm o2 points) V.!0
-    hull1 = seqHelper o1 pm m1 (keepOuter o1 pm m1 group1) (V.cons m1 hull)
-    hull2 = seqHelper pm o2 m2 (keepOuter o2 pm m2 group2) (V.cons m2 hull)
 
 -------------------------------------------------------------------------------------------------------
 parMaxv :: VV2 -> Int -> V2
 parMaxv points n =
   let c = max 1 (V.length points `div` n)  
       chunks = VS.chunksOf c points
-      maxChunks = parMap rpar maxv chunks  
+      maxChunks = parMap rdeepseq maxv chunks  
   in maxv (V.fromList maxChunks)           
 
 
 {-Function to find the V2 with the maximum x-coordinate-}
 maxv :: VV2 -> V2
-maxv = V.maximumBy (comparing (V.! 0))
+maxv = V.maximumBy (comparing fst)
 
 parMinv :: VV2 -> Int -> V2
 parMinv points n =
   let c = max 1 (V.length points `div` n)  
       chunks = VS.chunksOf c points
-      maxChunks = parMap rpar minv chunks  
+      maxChunks = parMap rdeepseq minv chunks  
   in minv (V.fromList maxChunks)   
 
 {-Function to find the V2 with the maximum x-coordinate-}
 minv :: VV2 -> V2
-minv = V.minimumBy (comparing (V.! 0))
+minv = V.minimumBy (comparing fst)
 
 --------------------------------------------------------------------------------------------------------
 
@@ -109,7 +89,7 @@ parMaxAreaPoint :: V2 -> V2 -> VV2 -> Int -> V2
 parMaxAreaPoint a1 a2 points n = 
   let c = max 1 (V.length points `div` n)  
       chunks = VS.chunksOf c points
-      maxChunks = parMap rpar (maxAreaPoint a1 a2) chunks  
+      maxChunks = parMap rdeepseq (maxAreaPoint a1 a2) chunks  
   in maxAreaPoint a1 a2 (V.fromList maxChunks)
 
 
@@ -119,8 +99,8 @@ maxAreaPoint _ anchor2 points | V.null points = anchor2
 maxAreaPoint anchor1 anchor2 points = V.maximumBy (comparing (triArea anchor1 anchor2)) points
 
 {-Groups by determinant (left, right)-}
-grouper :: V2 -> V2 -> VV2 -> VV3
-grouper anchor1 anchor2 points = V.fromList [leftGroup, rightGroup]
+grouper :: V2 -> V2 -> VV2 -> (VV2, VV2)
+grouper anchor1 anchor2 points = (leftGroup, rightGroup)
   where
     leftGroup = V.filter (\z -> determinant anchor1 anchor2 z > 0) points
     rightGroup = V.filter (\z -> determinant anchor1 anchor2 z < 0) points
@@ -129,12 +109,12 @@ grouper anchor1 anchor2 points = V.fromList [leftGroup, rightGroup]
 determinant :: V2 -> V2 -> V2 -> Double
 determinant anchor1 anchor2 point = (w1 - z1) * (u2 - z2) - (w2 - z2) * (u1 - z1)
   where
-    z1 = anchor1 V.! 0
-    z2 = anchor1 V.! 1
-    w1 = anchor2 V.! 0
-    w2 = anchor2 V.! 1
-    u1 = point V.! 0
-    u2 = point V.! 1
+    z1 = fst anchor1 
+    z2 = snd anchor1 
+    w1 = fst anchor2 
+    w2 = snd anchor2 
+    u1 = fst point 
+    u2 = snd point 
 
 {-Keeps points outside a triangle-}
 keepOuter :: V2 -> V2 -> V2 -> VV2 -> VV2
@@ -148,12 +128,12 @@ pointInTriangle t1 t2 t3 p =
 {-Area for triangle-}
 triArea :: V2 -> V2 -> V2 -> Double
 triArea v1 v2 v3 =
-    let x1 = v1 V.! 0
-        y1 = v1 V.! 1
-        x2 = v2 V.! 0
-        y2 = v2 V.! 1
-        x3 = v3 V.! 0
-        y3 = v3 V.! 1
+    let x1 = fst v1 
+        y1 = snd v1 
+        x2 = fst v2 
+        y2 = snd v2 
+        x3 = fst v3 
+        y3 = snd v3 
     in abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
 
 {-Epsilon value to mitigate floating point error-}
