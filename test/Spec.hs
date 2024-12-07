@@ -1,6 +1,6 @@
 import qualified Data.Vector.Unboxed as VU
 import System.Random (randomRIO)
-import QuickHullV (V2, VV2, quickh)
+import QuickHullV (V2, VV2, quickh, minv)
 import System.CPUTime
 import Data.List (sort, (\\), maximumBy, minimumBy, nub)
 import Control.DeepSeq
@@ -32,6 +32,8 @@ main = do
 
     let convertedPoint = vv2ToListOfTuples points
 
+    print (minv points)
+
     print "Starting Seq Test"
     startTime <- getCPUTime
     let seqPoints = sort (qh convertedPoint)
@@ -44,11 +46,18 @@ main = do
     endT <- parPoints `deepseq` getCPUTime
     print (endT - startT)
 
+    let andewPoints = sort (nub (convexHull convertedPoint))
+
     print (length parPoints)
     print (length seqPoints)
     if seqPoints == parPoints
         then print "Test Passed!"
         else print "Test Failed!"
+    
+    if seqPoints == andewPoints 
+        then print "Andrew Passed"
+        else print "Andew Failed"
+    
 
     print "Complete!"
 

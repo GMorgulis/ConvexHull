@@ -1,4 +1,4 @@
-module QuickHullV (V2, VV2, quickh)where
+module QuickHullV (V2, VV2, quickh, maxv, minv, maxAreaPoint, grouper) where
 
 {-
 George Morgulis 
@@ -20,7 +20,6 @@ import Control.DeepSeq
 {-New vector type-}
 type V2 = (Double, Double)
 type VV2 = V.Vector V2
---type VV3 = V.Vector VV2
 
 --------------------------------------------------------------------------------------------
 
@@ -56,40 +55,17 @@ ph points a1 a2 hull d
     h = h1 V.++ h2
 
 
-
 -------------------------------------------------------------------------------------------------------
-parMaxv :: VV2 -> Int -> V2
-parMaxv points n =
-  let c = max 1 (V.length points `div` n)  
-      chunks = VS.chunksOf c points
-      maxChunks = parMap rdeepseq maxv chunks  
-  in maxv (V.fromList maxChunks)           
-
 
 {-Function to find the V2 with the maximum x-coordinate-}
 maxv :: VV2 -> V2
 maxv = V.maximumBy (comparing fst)
-
-parMinv :: VV2 -> Int -> V2
-parMinv points n =
-  let c = max 1 (V.length points `div` n)  
-      chunks = VS.chunksOf c points
-      maxChunks = parMap rdeepseq minv chunks  
-  in minv (V.fromList maxChunks)   
 
 {-Function to find the V2 with the maximum x-coordinate-}
 minv :: VV2 -> V2
 minv = V.minimumBy (comparing fst)
 
 --------------------------------------------------------------------------------------------------------
-
-parMaxAreaPoint :: V2 -> V2 -> VV2 -> Int -> V2
-parMaxAreaPoint a1 a2 points n = 
-  let c = max 1 (V.length points `div` n)  
-      chunks = VS.chunksOf c points
-      maxChunks = parMap rdeepseq (maxAreaPoint a1 a2) chunks  
-  in maxAreaPoint a1 a2 (V.fromList maxChunks)
-
 
 {-Furthest point from a line-}
 maxAreaPoint :: V2 -> V2 -> VV2 -> V2
@@ -125,10 +101,3 @@ triArea v1 v2 v3 =
         y3 = snd v3 
     in abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
 
-{-Epsilon value to mitigate floating point error-}
-epsilon :: Double
-epsilon = 1e-9
-
-{-Method to mitigate floating point error-}
-closeEnough :: Double -> Double -> Bool
-closeEnough a b = abs (a - b) < epsilon

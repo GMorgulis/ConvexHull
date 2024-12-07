@@ -4,7 +4,7 @@ import System.Random (randomRIO)
 import qualified Data.Vector.Unboxed as VU
 import Control.Monad (replicateM)
 import System.IO (readFile)
-import QuickHullV (V2, VV2, quickh)
+import QuickHullV (V2, VV2, quickh, maxv, minv, maxAreaPoint, grouper)
 import System.CPUTime
 import Data.List (sort, (\\))
 import Control.DeepSeq
@@ -40,13 +40,34 @@ runner :: IO ()
 runner = do
     print "Reading"
     points <- readPointsFromFile "random_points.txt"
+    print (maxv points)
     --print points
     print "Starting Test"
     startT <- getCPUTime
     let parPoints = quickh points 8
     endT <- parPoints `deepseq` getCPUTime
     print (endT - startT)
+    print (VU.length parPoints)
     print "done"
+
+methodTest :: IO ()
+methodTest = do 
+    print "Reading"
+    points <- readPointsFromFile "random_points.txt"
+    print "done reading"
+    let a1 = minv points 
+    print a1
+    let a2 = maxv points
+    print a2
+    let m1 = maxAreaPoint a1 a2 points
+    print m1 
+ 
+
+    let (g1, g2) = grouper a1 a2 points
+
+    print (maxv g1)
+    print (minv g2)
+
 
 -- Function to generate a random point within a specified range
 vRandomPoint :: Double -> IO V2
