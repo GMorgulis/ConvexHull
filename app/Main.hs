@@ -1,9 +1,6 @@
 module Main (main) where
 
-import System.Random (randomRIO)
 import qualified Data.Vector.Unboxed as VU
-import Control.Monad (replicateM)
-import System.IO (readFile)
 import QuickHullV (V2, VV2, quickh, maxv, minv, maxAreaPoint, grouper)
 import System.CPUTime
 import Data.List (sort, (\\))
@@ -34,12 +31,11 @@ main :: IO ()
 main = do
     print "here"
     runner
-    --generator
 
 runner :: IO ()
 runner = do
     print "Reading"
-    points <- readPointsFromFile "random_points.txt"
+    points <- readPointsFromFile "random_points2.txt"
     print (maxv points)
     --print points
     print "Starting Test"
@@ -67,31 +63,3 @@ methodTest = do
 
     print (maxv g1)
     print (minv g2)
-
-
--- Function to generate a random point within a specified range
-vRandomPoint :: Double -> IO V2
-vRandomPoint range = do
-    x <- randomRIO (-range, range)
-    y <- randomRIO (-range, range)
-    return (x, y)
-
--- Generate a list of random points (n points)
-vGeneratePoints :: Int -> IO VV2
-vGeneratePoints n = VU.fromList <$> replicateM n (vRandomPoint 100000000)
-
--- Convert VV2 to a list of tuples
-vv2ToListOfTuples :: VV2 -> [(Double, Double)]
-vv2ToListOfTuples = VU.toList
-
--- Function to generate points and write to a file
-generatePointsAndWriteToFile :: Int -> FilePath -> IO ()
-generatePointsAndWriteToFile n filePath = do
-    points <- vGeneratePoints n
-    let pointsList = vv2ToListOfTuples points
-    writeFile filePath $ unlines $ map (\(x, y) -> show x ++ "," ++ show y) pointsList
-
-generator :: IO ()
-generator = generatePointsAndWriteToFile 10000000 "random_points.txt"
-
---stack exec convex-hull-exe -- +RTS -ls -s -N2

@@ -4,7 +4,7 @@ module QuickHullV (V2, VV2, quickh, maxv, minv, maxAreaPoint, grouper) where
 George Morgulis 
 COMS 4995 Parallel Functional Programming
 
-This is the paralel implementaion of quickhull
+This is the paralel implementaion of quickhull which is actually good
 -}
 
 
@@ -40,8 +40,11 @@ starter points a1 a2 d = V.cons m1 (V.cons m2 h)
       h1 = ph group1 a1 m1 V.empty d 
       h2 = ph group1 m1 a2 V.empty d 
       h3 = ph group2 a2 m2 V.empty d
-      h4 = ph group2 m2 a1 V.empty d 
-      h = h1 V.++ h2 V.++ h3 V.++ h4 
+      h4 = ph group2 m2 a1 V.empty d
+      combined_h1_h2 = h1 `par` (h2 `pseq` (h1 V.++ h2))
+      combined_h3_h4 = h3 `par` (h4 `pseq` (h3 V.++ h4))
+      h = combined_h1_h2 `par` (combined_h3_h4 `pseq` (combined_h1_h2 V.++ combined_h3_h4))
+      --h = h1 V.++ h2 V.++ h3 V.++ h4 
 
 ph :: VV2 -> V2 -> V2 -> VV2-> Int -> VV2 
 ph points a1 a2 hull d 
