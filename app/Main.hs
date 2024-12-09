@@ -7,7 +7,7 @@ import Data.List (sort, (\\))
 import Control.DeepSeq
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
-
+import GHC.Conc (getNumCapabilities)
 
 -- Function to parse a ByteString line into a tuple of doubles
 parseLine :: B.ByteString -> (Double, Double)
@@ -29,20 +29,23 @@ readPointsFromFile filePath = do
 
 main :: IO ()
 main = do
-    print "here"
-    runner
+    threads <- getNumCapabilities 
+    putStrLn $ "Running with " ++ show threads
+    runner threads
+    --methodTest
 
-runner :: IO ()
-runner = do
+runner :: Int -> IO ()
+runner threads = do
     print "Reading"
-    points <- readPointsFromFile "random_points2.txt"
-    print (maxv points)
+    points <- readPointsFromFile "random_points1m.txt"
+    points `deepseq` putStrLn "Points have been fully read and evaluated"
+    --print (maxv points)
     --print points
     print "Starting Test"
     startT <- getCPUTime
-    let parPoints = quickh points 8
+    let parPoints = quickh points threads
     endT <- parPoints `deepseq` getCPUTime
-    print (endT - startT)
+    print (div (endT - startT) 1000000000000)
     print (VU.length parPoints)
     print "done"
 

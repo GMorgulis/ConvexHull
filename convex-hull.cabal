@@ -26,12 +26,9 @@ source-repository head
 library
   exposed-modules:
       Andrew
-      Draw
-      Lib
       Qhpar
       Qhseq
       QuickHullV
-      Test
   other-modules:
       Paths_convex_hull
   autogen-modules:

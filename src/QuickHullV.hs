@@ -10,10 +10,8 @@ This is the paralel implementaion of quickhull which is actually good
 
 import Data.Ord (comparing)
 import qualified Data.Vector.Unboxed as V
-import qualified Data.Vector.Split as VS
 import Control.Parallel (par, pseq)
-import Control.Parallel.Strategies(parMap, rpar, rdeepseq)
-import Control.DeepSeq
+
 --Control.Parallel.Strategies (parList, rseq, using)
 
 
@@ -22,41 +20,41 @@ type V2 = (Double, Double)
 type VV2 = V.Vector V2
 
 --------------------------------------------------------------------------------------------
-
 quickh :: VV2 -> Int -> VV2
-quickh points n = V.cons a1 (V.cons a2 hh)
+quickh points d = V.cons a1 (V.cons a2 hh)
   where
     a1 = minv points
     a2 = maxv points
-    hh = starter points a1 a2 n
+    hh = starter points a1 a2 (depthUpdate d)
 
 starter :: VV2 -> V2 -> V2 -> Int -> VV2
-starter points a1 a2 d = V.cons m1 (V.cons m2 h) 
+starter points a1 a2 d = V.cons m1 (V.cons m2 hpar) 
   where 
       group1 = fst (grouper a1 a2 points) 
       group2 = snd (grouper a1 a2 points) 
       m1 = maxAreaPoint a1 a2 group1 
       m2 = maxAreaPoint a1 a2 group2
-      h1 = ph group1 a1 m1 V.empty d 
-      h2 = ph group1 m1 a2 V.empty d 
-      h3 = ph group2 a2 m2 V.empty d
-      h4 = ph group2 m2 a1 V.empty d
+      h1 = ph group1 a1 m1 (depthUpdate d) 
+      h2 = ph group1 m1 a2 (depthUpdate d) 
+      h3 = ph group2 a2 m2 (depthUpdate d)
+      h4 = ph group2 m2 a1 (depthUpdate d)
       combined_h1_h2 = h1 `par` (h2 `pseq` (h1 V.++ h2))
       combined_h3_h4 = h3 `par` (h4 `pseq` (h3 V.++ h4))
-      h = combined_h1_h2 `par` (combined_h3_h4 `pseq` (combined_h1_h2 V.++ combined_h3_h4))
-      --h = h1 V.++ h2 V.++ h3 V.++ h4 
+      hpar = combined_h1_h2 `par` (combined_h3_h4 `pseq` (combined_h1_h2 V.++ combined_h3_h4))
+      h = h1 V.++ h2 V.++ h3 V.++ h4 -- this is for the sequential implmentation
 
-ph :: VV2 -> V2 -> V2 -> VV2-> Int -> VV2 
-ph points a1 a2 hull d 
+ph :: VV2 -> V2 -> V2 -> Int -> VV2 
+ph points a1 a2 d 
   | V.null points = V.empty 
+  | d > 0 = V.cons m1 hpar
   | otherwise = V.cons m1 h
   where 
     group = fst (grouper a1 a2 points)
     m1 = maxAreaPoint a1 a2 group
-    h1 = ph group a1 m1 hull d 
-    h2 = ph group m1 a2 hull d 
+    h1 = ph group a1 m1 (depthUpdate d) 
+    h2 = ph group m1 a2 (depthUpdate d) 
     h = h1 V.++ h2
-
+    hpar = h1 `par` (h2 `pseq` (h1 V.++ h2))
 
 -------------------------------------------------------------------------------------------------------
 
@@ -82,6 +80,7 @@ grouper anchor1 anchor2 points = (leftGroup, rightGroup)
     leftGroup = V.filter (\z -> determinant anchor1 anchor2 z > 0) points
     rightGroup = V.filter (\z -> determinant anchor1 anchor2 z < 0) points
 
+
 {-Calculates determinant-}
 determinant :: V2 -> V2 -> V2 -> Double
 determinant anchor1 anchor2 point = (w1 - z1) * (u2 - z2) - (w2 - z2) * (u1 - z1)
@@ -104,3 +103,7 @@ triArea v1 v2 v3 =
         y3 = snd v3 
     in abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
 
+depthUpdate :: Int -> Int 
+depthUpdate d 
+  | d == 1 || d == 0 = 0
+  | otherwise = div d 2

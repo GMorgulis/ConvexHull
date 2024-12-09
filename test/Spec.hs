@@ -28,7 +28,7 @@ vv2ToListOfTuples = VU.toList
 main :: IO ()
 main = do
     print "Starting Point Generation"
-    points <- vGeneratePoints 10000000
+    points <- vGeneratePoints 10
 
     let convertedPoint = vv2ToListOfTuples points
 
@@ -42,11 +42,11 @@ main = do
 
     print "Starting Test"
     startT <- getCPUTime
-    let parPoints = sort (nub (vv2ToListOfTuples (quickh points 8)))
+    let parPoints = vv2ToListOfTuples (quickh points 8)
     endT <- parPoints `deepseq` getCPUTime
     print (endT - startT)
 
-    let andewPoints = sort (nub (convexHull convertedPoint))
+    {-let andewPoints = sort (nub (convexHull convertedPoint))
 
     print (length parPoints)
     print (length seqPoints)
@@ -56,8 +56,25 @@ main = do
     
     if seqPoints == andewPoints 
         then print "Andrew Passed"
-        else print "Andew Failed"
+        else print "Andew Failed"-}
+    print (length seqPoints)
+    print (length (nub seqPoints))   
+
     
+    print (length parPoints)
+
+
+    print (length (nub parPoints))
+
+    print (sort(nub parPoints) == sort(nub(seqPoints)))
+
+    print parPoints
+    print "nubbed"
+    print (nub parPoints)
+    print "sorted"
+    print (sort parPoints)
+    print "ideal"
+    print (sort (nub parPoints))
 
     print "Complete!"
 

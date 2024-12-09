@@ -16,7 +16,7 @@ import Data.Ord (comparing)
 type C2 = (Double, Double)
 
 qh :: [C2] -> [C2]
-qh points = nub (helper1 points [])
+qh points = (helper1 points [])
     where
         helper1 [] hull = hull -- starter 
         helper1 (x : xs) hull =
