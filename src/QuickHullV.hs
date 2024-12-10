@@ -21,27 +21,14 @@ type VV2 = V.Vector V2
 
 --------------------------------------------------------------------------------------------
 quickh :: VV2 -> Int -> VV2
-quickh points d = V.cons a1 (V.cons a2 hh)
+quickh points d = V.cons a1 (V.cons a2 hpar)
   where
     a1 = minv points
     a2 = maxv points
-    hh = starter points a1 a2 (depthUpdate d)
-
-starter :: VV2 -> V2 -> V2 -> Int -> VV2
-starter points a1 a2 d = V.cons m1 (V.cons m2 hpar) 
-  where 
-      group1 = fst (grouper a1 a2 points) 
-      group2 = snd (grouper a1 a2 points) 
-      m1 = maxAreaPoint a1 a2 group1 
-      m2 = maxAreaPoint a1 a2 group2
-      h1 = ph group1 a1 m1 (depthUpdate d) 
-      h2 = ph group1 m1 a2 (depthUpdate d) 
-      h3 = ph group2 a2 m2 (depthUpdate d)
-      h4 = ph group2 m2 a1 (depthUpdate d)
-      combined_h1_h2 = h1 `par` (h2 `pseq` (h1 V.++ h2))
-      combined_h3_h4 = h3 `par` (h4 `pseq` (h3 V.++ h4))
-      hpar = combined_h1_h2 `par` (combined_h3_h4 `pseq` (combined_h1_h2 V.++ combined_h3_h4))
-      h = h1 V.++ h2 V.++ h3 V.++ h4 -- this is for the sequential implmentation
+    groups = grouper a1 a2 points 
+    h1 = ph (fst groups) a1 a2 d
+    h2 = ph (snd groups) a2 a1 d
+    hpar =  h1 `par` (h2 `pseq` (h1 V.++ h2))
 
 ph :: VV2 -> V2 -> V2 -> Int -> VV2 
 ph points a1 a2 d 
