@@ -2,6 +2,7 @@ module Main (main) where
 
 import qualified Data.Vector.Unboxed as VU
 import QuickHullV (V2, VV2, quickh, maxv, minv, maxAreaPoint, grouper)
+import qualified Data.RRBVector as RRB
 import System.CPUTime
 import Data.List (sort, (\\))
 import Control.DeepSeq
@@ -36,16 +37,17 @@ main = do
 
 runner :: Int -> IO ()
 runner threads = do
-    print "Reading"
-    points <- readPointsFromFile "random_points1m.txt"
+    print "Reading:"
+    let fileName = "random_points4m.txt"
+    print fileName
+    points <- readPointsFromFile fileName
+    print (VU.length points)
     points `deepseq` putStrLn "Points have been fully read and evaluated"
-    --print (maxv points)
-    --print points
     print "Starting Test"
     startT <- getCPUTime
     let parPoints = quickh points threads
     endT <- parPoints `deepseq` getCPUTime
-    print (div (endT - startT) 1000000000000)
+    print (div (endT - startT) 1000000000)
     print (VU.length parPoints)
     print "done"
 
@@ -61,8 +63,3 @@ methodTest = do
     let m1 = maxAreaPoint a1 a2 points
     print m1 
  
-
-    let (g1, g2) = grouper a1 a2 points
-
-    print (maxv g1)
-    print (minv g2)

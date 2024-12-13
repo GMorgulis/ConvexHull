@@ -28,11 +28,9 @@ vv2ToListOfTuples = VU.toList
 main :: IO ()
 main = do
     print "Starting Point Generation"
-    points <- vGeneratePoints 10
+    points <- vGeneratePoints 1000
 
     let convertedPoint = vv2ToListOfTuples points
-
-    print (minv points)
 
     print "Starting Seq Test"
     startTime <- getCPUTime
@@ -46,17 +44,8 @@ main = do
     endT <- parPoints `deepseq` getCPUTime
     print (endT - startT)
 
-    {-let andewPoints = sort (nub (convexHull convertedPoint))
+    let andewPoints = sort (nub (convexHull convertedPoint))
 
-    print (length parPoints)
-    print (length seqPoints)
-    if seqPoints == parPoints
-        then print "Test Passed!"
-        else print "Test Failed!"
-    
-    if seqPoints == andewPoints 
-        then print "Andrew Passed"
-        else print "Andew Failed"-}
     print (length seqPoints)
     print (length (nub seqPoints))   
 
@@ -66,7 +55,6 @@ main = do
 
     print (length (nub parPoints))
 
-    print (sort(nub parPoints) == sort(nub(seqPoints)))
 
     print parPoints
     print "nubbed"
@@ -75,6 +63,16 @@ main = do
     print (sort parPoints)
     print "ideal"
     print (sort (nub parPoints))
+
+    print (length parPoints)
+    print (length seqPoints)
+    if (sort(nub parPoints) == sort(nub(seqPoints)))
+        then print "Test Passed!"
+        else print "Test Failed!"
+    
+    if (sort(nub parPoints) == sort(nub(andewPoints)))
+        then print "Andrew Passed"
+        else print "Andew Failed"
 
     print "Complete!"
 

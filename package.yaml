@@ -31,6 +31,8 @@ dependencies:
 - vector
 - bytestring
 - vector-split
+- time
+- rrb-vector
 
 ghc-options:
 - -Wall

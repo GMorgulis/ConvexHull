@@ -12,11 +12,11 @@ def write_points_to_file(filename, x_coords, y_coords):
             file.write(f"{x},{y}\n")
 
 radius = 50000000
-num_points = 100000
+num_points = 4000000
 x_coords, y_coords = generate_circle_points(radius, num_points)
 
 # Write points to file
-filename = "random_points100k.txt"
+filename = "random_points2mil.txt"
 write_points_to_file(filename, x_coords, y_coords)
 
 print(f"Points have been written to {filename}")
