@@ -54,19 +54,11 @@ maxAreaPoint :: V2 -> V2 -> VV2 -> V2
 maxAreaPoint _ _ points | V.null points = error "missing points"
 maxAreaPoint anchor1 anchor2 points = V.maximumBy (comparing (triArea anchor1 anchor2)) points
 
-
-{-
-maxAreaPoint :: V2 -> V2 -> VV2 -> V2
-maxAreaPoint _ anchor2 points | V.null points = anchor2
-maxAreaPoint anchor1 anchor2 points = V.maximumBy (comparing (triArea anchor1 anchor2)) points  -}
-
 {-Groups by determinant (left, right)-}
 grouper :: V2 -> V2 -> VV2 -> VV2
 grouper anchor1 anchor2 points = leftGroup
   where
     leftGroup = V.filter (\z -> determinant anchor1 anchor2 z > 0) points
-    --rightGroup = V.filter (\z -> determinant anchor1 anchor2 z < 0) points
-
 
 {-Calculates determinant-}
 determinant :: V2 -> V2 -> V2 -> Double
