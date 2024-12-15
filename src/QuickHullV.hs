@@ -13,7 +13,6 @@ import qualified Data.Vector.Unboxed as V
 import Control.Parallel (par, pseq)
 
 
-
 {-New vector type-}
 type V2 = (Double, Double)
 type VV2 = V.Vector V2
@@ -43,44 +42,30 @@ ph points a1 a2 d
 
 {-Function to find the V2 with the maximum x-coordinate-}
 maxv :: VV2 -> V2
-maxv = V.maximumBy (comparing fst)
+maxv points | V.null points = error "Error: maxv requires an Unboxed Vector of points but none been provided. Points are (double, double)"
+maxv points = V.maximumBy (comparing fst) points
 
 {-Function to find the V2 with the maximum x-coordinate-}
 minv :: VV2 -> V2
-minv = V.minimumBy (comparing fst)
+minv points | V.null points = error "Error: minv requires an Unboxed Vector of points but none been provided. Points are (double, double)"
+minv points = V.minimumBy (comparing fst) points
 
 {-Furthest point from a line-}
 maxAreaPoint :: V2 -> V2 -> VV2 -> V2
-maxAreaPoint _ _ points | V.null points = error "missing points"
+maxAreaPoint _ _ points | V.null points = error "Error: maxAreaPoint requires an Unboxed Vector of points but none been provided. Points are (double, double)"
 maxAreaPoint anchor1 anchor2 points = V.maximumBy (comparing (triArea anchor1 anchor2)) points
 
 {-Groups by determinant (left, right)-}
 grouper :: V2 -> V2 -> VV2 -> VV2
-grouper anchor1 anchor2 points = leftGroup
-  where
-    leftGroup = V.filter (\z -> determinant anchor1 anchor2 z > 0) points
+grouper anchor1 anchor2 points = V.filter (\z -> determinant anchor1 anchor2 z > 0) points
 
 {-Calculates determinant-}
 determinant :: V2 -> V2 -> V2 -> Double
-determinant anchor1 anchor2 point = (w1 - z1) * (u2 - z2) - (w2 - z2) * (u1 - z1)
-  where
-    z1 = fst anchor1
-    z2 = snd anchor1
-    w1 = fst anchor2
-    w2 = snd anchor2
-    u1 = fst point
-    u2 = snd point
+determinant (z1, z2) (w1, w2) (u1, u2) = (w1 - z1) * (u2 - z2) - (w2 - z2) * (u1 - z1)
 
 {-Area for triangle-}
 triArea :: V2 -> V2 -> V2 -> Double
-triArea v1 v2 v3 =
-    let x1 = fst v1
-        y1 = snd v1
-        x2 = fst v2
-        y2 = snd v2
-        x3 = fst v3
-        y3 = snd v3
-    in abs ((x1 * (y2 - y3)) + (x2 * (y3 - y1)) + (x3 * (y1 - y2)))
+triArea (z1, z2) (w1, w2) (u1, u2) = abs ((z1 * (w2 - u2)) + (w1 * (u2 - z2)) + (u1 * (z2 - w2)))
 
 depthUpdate :: Int -> Int
 depthUpdate d

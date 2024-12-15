@@ -1,9 +1,7 @@
 import qualified Data.Vector.Unboxed as VU
 import System.Random (randomRIO)
-import QuickHullV (V2, VV2, quickh, minv)
-import System.CPUTime
-import Data.List (sort, (\\), maximumBy, minimumBy, nub)
-import Control.DeepSeq
+import QuickHullV (V2, VV2, quickh)
+import Data.List (sort, nub)
 import Andrew (convexHull)
 import Qhseq (qh)
 
@@ -31,46 +29,19 @@ main = do
     points <- vGeneratePoints 1000
 
     let convertedPoint = vv2ToListOfTuples points
-
-    print "Starting Seq Test"
-    startTime <- getCPUTime
-    let seqPoints = sort (qh convertedPoint)
-    endTime <- seqPoints `deepseq` getCPUTime
-    print (endTime - startTime)
-
-    print "Starting Test"
-    startT <- getCPUTime
+    let seqPoints = sort (nub (qh convertedPoint))
     let parPoints = vv2ToListOfTuples (quickh points 8)
-    endT <- parPoints `deepseq` getCPUTime
-    print (endT - startT)
-
-    let andewPoints = sort (nub (convexHull convertedPoint))
-
-    print (length seqPoints)
-    print (length (nub seqPoints))   
-
-    
-    print (length parPoints)
-
-
-    print (length (nub parPoints))
-
-
-    print parPoints
-    print "nubbed"
-    print (nub parPoints)
-    print "sorted"
-    print (sort parPoints)
-    print "ideal"
-    print (sort (nub parPoints))
+    let andrewPoints = sort (nub (convexHull convertedPoint))
 
     print (length parPoints)
     print (length seqPoints)
+    print (length andrewPoints)
+
     if (sort(nub parPoints) == sort(nub(seqPoints)))
         then print "Test Passed!"
         else print "Test Failed!"
     
-    if (sort(nub parPoints) == sort(nub(andewPoints)))
+    if (sort(nub parPoints) == sort(nub(andrewPoints)))
         then print "Andrew Passed"
         else print "Andew Failed"
 

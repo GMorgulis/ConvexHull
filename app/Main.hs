@@ -1,10 +1,8 @@
 module Main (main) where
 
 import qualified Data.Vector.Unboxed as VU
-import QuickHullV (V2, VV2, quickh, maxv, minv, maxAreaPoint, grouper)
-import qualified Data.RRBVector as RRB
+import QuickHullV (VV2, quickh)
 import System.CPUTime
-import Data.List (sort, (\\))
 import Control.DeepSeq
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
@@ -32,11 +30,6 @@ main :: IO ()
 main = do
     threads <- getNumCapabilities 
     putStrLn $ "Running with " ++ show threads
-    runner threads
-    --methodTest
-
-runner :: Int -> IO ()
-runner threads = do
     print "Reading:"
     let fileName = "random_points4m.txt"
     print fileName
@@ -51,15 +44,7 @@ runner threads = do
     print (VU.length parPoints)
     print "done"
 
-methodTest :: IO ()
-methodTest = do 
-    print "Reading"
-    points <- readPointsFromFile "random_points.txt"
-    print "done reading"
-    let a1 = minv points 
-    print a1
-    let a2 = maxv points
-    print a2
-    let m1 = maxAreaPoint a1 a2 points
-    print m1 
+
+
+
  
