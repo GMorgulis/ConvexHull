@@ -1,12 +1,14 @@
 module Qhseq
-    (C2, mind, maxd, qh
+    (C2, qh
     ) where
 
 {-
 George Morgulis 
 COMS 4995 Parallel Functional Programming
 
-This is the sequential implementaion of quickhull
+This is my very first sequential implmentation of Quick Hull.
+(!!!) This code is not meant to be run as the project greatly changed since I wrote this first 
+implementation. This simply exists to show how far the project has progressed. 
 -}
 
 import Data.List (maximumBy, minimumBy, nub)

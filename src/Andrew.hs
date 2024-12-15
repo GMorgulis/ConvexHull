@@ -5,7 +5,8 @@ module Andrew
 import Data.List (sort)
 import Qhseq (C2)
 
-{-This is a correct implementation of monotone chain that I will use for testing my Code-}
+{-This is NOT my implementaiton of Andrew's Monotone Chain. It was taken from Wikepedia,
+and it was used to verify that my Quick Hull algorithm was generating the correct answers-}
 
 
 
