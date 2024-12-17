@@ -13,10 +13,9 @@ def write_points_to_file(points, filename):
         for point in points:
             file.write(f'{point[0]}, {point[1]}\n')
 
-# Example usage
-num_points = 10
-x_range = (-10, 10)  # Range for x-coordinates
-y_range = (-10, 10)  # Range for y-coordinates
+num_points = 4000000
+x_range = (-50000000, 50000000)  
+y_range = (-50000000, 50000000)  
 
 random_points = generate_random_points(num_points, x_range, y_range)
-write_points_to_file(random_points, 'random_points.txt')
+write_points_to_file(random_points, 'r4m.txt')

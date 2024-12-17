@@ -3,9 +3,11 @@
 convex-hull-exe.EXE.eventlog
 wrandom_points.txt
 stack-3.1.1.eventlog
-wrandom_points2.txt
-wrandom_points1m.txt
-wrandom_points2m.txt
-wrandom_points4m.txt
-wrandom_points10m.txt
-wrandom_points100k.txt
+w1m.txt
+w2m.txt
+w4m.txt
+w10m.txt
+w100k.txt
+r4m.txt
+r10m.txt
+convex-hull-exe.EXE.eventlog

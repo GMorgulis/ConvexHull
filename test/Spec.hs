@@ -7,22 +7,24 @@ import Qhseq (qh)
 
 
 
--- Generate a random point (x, y) where x and y are between -x and x
+{-Generate a random point (x, y) where x and y are between -x and x-}
 vRandomPoint :: Double -> IO V2
 vRandomPoint x = do
     xCoord <- randomRIO (-x, x)
     yCoord <- randomRIO (-x, x)
     return (xCoord, yCoord)
 
--- Generate a list of random points (n points)
+{-Generate a list of random points (n points)-}
 vGeneratePoints :: Int -> IO VV2
 vGeneratePoints n = VU.replicateM n (vRandomPoint 100000000)
 
--- Convert VV2 to a list of tuples
+{-Convert VV2 to a list of tuples-}
 vv2ToListOfTuples :: VV2 -> [(Double, Double)]
 vv2ToListOfTuples = VU.toList
 
-{-This test does not check for correctness. Instead, it should be used for testing time-}
+{-This test checks simply for correctness of my algorithm by running it on a random set of points 
+  and checking with a correct implementation
+-}
 main :: IO ()
 main = do
     print "Starting Point Generation"
@@ -47,4 +49,3 @@ main = do
 
     print "Complete!"
 
---stack exec convex-hull-exe -- +RTS -ls -s -N2

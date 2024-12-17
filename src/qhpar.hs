@@ -6,7 +6,8 @@ module Qhpar
 George Morgulis 
 COMS 4995 Parallel Functional Programming
 
-This is my first, really bad parallel implementaion of quickhull
+This is the first, really bad parallel implementaion of quickhull. This code cannot be run as the data types 
+do not match up with the final iteration of the project. Use QuickHullV. 
 -}
 
 import Data.List (maximumBy, minimumBy, nub)
