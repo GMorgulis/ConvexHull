@@ -21,7 +21,10 @@ type V2 = (Double, Double)
 type VV2 = V.Vector V2
 
 --------------------------------------------------------------------------------------------
-{-Returns the convex hull-}
+{-Returns the convex hull. Find points with the minimum and maxmimum x-coordinates. Adds
+  these extremes to hull. Uses the line segment created by the extremes to divide the whole 
+  set of points into two groups, and runs ph on both of them.
+-}
 quickh :: VV2 -> Int -> VV2
 quickh points d = V.cons a1 (V.cons a2 hpar)
   where
@@ -31,13 +34,19 @@ quickh points d = V.cons a1 (V.cons a2 hpar)
     h2 = ph points a2 a1 (depthUpdate d) -- note the change in order
     hpar =  h1 `par` (h2 `pseq` V.concat [h1, h2]) 
 
-{-Helper function for quick hull-}
+{-Helper function for quick hull. Uses the two extemes given as parameter to for a line segment.
+  Only points to the left of the line segment are kept; all others are eleminated. Finds "m1" the 
+  point that is furthest from the line segment and adds it the hull. Concatenates results of ph with 
+  a1, m1 and m1, a2. Runs in parallel if depth is positive, length is greater than baseline and 
+  if percent points remaining after the "groupping" is greater than 30% of "points".
+-}
 ph :: VV2 -> V2 -> V2 -> Int -> VV2
 ph points a1 a2 d
   | V.length group == 0 = V.empty 
-  | d > 0 && V.length group > 250000 = V.cons m1 hpar
+  | d > 0 && V.length group > 250000 && percentRemaining > 0.3 = V.cons m1 hpar
   | otherwise = V.cons m1 h
   where
+    percentRemaining = fromIntegral (V.length group) / fromIntegral (V.length points) :: Double
     group = grouper a1 a2 points
     m1 = maxAreaPoint a1 a2 group
     h1 = ph group a1 m1 (depthUpdate d)
@@ -47,17 +56,14 @@ ph points a1 a2 d
 
 {-Function to find the point with the maximum x-coordinate-}
 maxv :: VV2 -> V2
-maxv points | V.null points = error "Error: maxv requires an Unboxed Vector of points but none been provided. Points are (double, double)"
 maxv points = V.maximumBy (comparing fst) points
 
 {-Function to find the point with the maximum x-coordinate-}
 minv :: VV2 -> V2
-minv points | V.null points = error "Error: minv requires an Unboxed Vector of points but none been provided. Points are (double, double)"
 minv points = V.minimumBy (comparing fst) points
 
-{-Furthest point from a line-}
+{-Furthest point from a line segment defined by points a1, a2-}
 maxAreaPoint :: V2 -> V2 -> VV2 -> V2
-maxAreaPoint _ _ points | V.null points = error "Error: maxAreaPoint requires an Unboxed Vector of points but none been provided. Points are (double, double)"
 maxAreaPoint anchor1 anchor2 points = V.maximumBy (comparing (triArea anchor1 anchor2)) points
 
 {-Groups by 2D determiants (cross product). Always return the points left of segment (a1,a2)-}

@@ -11,7 +11,7 @@ This is my first, really bad parallel implementaion of quickhull
 
 import Data.List (maximumBy, minimumBy, nub)
 import Data.Ord (comparing)
-import Control.Parallel (par, pseq)
+import Control.Parallel (par)
 
 
 {- Type used to represent points-}
@@ -87,8 +87,6 @@ grouper anchor1 anchor2 points = helper anchor1 anchor2 points [] []
             | closeEnough ((x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1)) 0 = helper (x1, y1) (x2, y2) zs group1 group2 -- collinear points added to neither group
             | (x2 - x1) * (snd z - y1) - (y2 - y1) * (fst z - x1) > 0 = helper (x1, y1) (x2, y2) zs (z : group1) group2 -- left of 
             | otherwise = helper (x1, y1) (x2, y2) zs group1 (z : group2) -- right of 
-        
-
 
 {-Keeps all points outside the triangle. Works for everything other than points on triangle itself-}
 keepOuter :: C2 -> C2 -> C2 -> [C2] -> [C2]
