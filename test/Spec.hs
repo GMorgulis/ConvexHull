@@ -5,7 +5,10 @@ import Data.List (sort, nub)
 import Andrew (convexHull)
 import Qhseq (qh)
 
-
+{-
+George Morgulis(gm3138)
+Henry Lin(hkl2127)
+-}
 
 {-Generate a random point (x, y) where x and y are between -x and x-}
 vRandomPoint :: Double -> IO V2
