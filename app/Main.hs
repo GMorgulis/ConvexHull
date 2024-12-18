@@ -9,6 +9,11 @@ import qualified Data.ByteString.Char8 as BC
 import GHC.Conc (getNumCapabilities)
 import System.Environment (getArgs)
 
+{-
+George Morgulis(gm3138)
+Henry Lin(hkl2127)
+-}
+
 -- Function to parse a ByteString line into a tuple of doubles
 parseLine :: B.ByteString -> (Double, Double)
 parseLine line =
@@ -26,7 +31,10 @@ readPointsFromFile filePath = do
     let linesOfFile = BC.lines content
         pointsList = map parseLine linesOfFile
     return $ listToVV2 pointsList
-
+{-
+Function to read file and run quickhull. Use deepseq on both processes to help measure CPU time.
+Requires input file but does not produce an output file for timing purposes.
+-}
 main :: IO ()
 main = do
     args <- getArgs
