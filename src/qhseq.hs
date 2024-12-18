@@ -3,7 +3,8 @@ module Qhseq
     ) where
 
 {-
-George Morgulis 
+George Morgulis(gm3138)
+Henry Lin(hkl2127)
 COMS 4995 Parallel Functional Programming
 
 This is my very first sequential implmentation of Quick Hull.
