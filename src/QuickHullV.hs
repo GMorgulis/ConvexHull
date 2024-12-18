@@ -81,5 +81,5 @@ triArea (z1, z2) (w1, w2) (u1, u2) = abs ((z1 * (w2 - u2)) + (w1 * (u2 - z2)) + 
 {-Updates the depth of recursion-}
 depthUpdate :: Int -> Int
 depthUpdate d
-  | d <= 1 = 0
+  | div d 2 <= 1 = 0
   | otherwise = div d 2
