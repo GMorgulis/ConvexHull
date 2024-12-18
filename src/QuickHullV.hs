@@ -1,7 +1,8 @@
 module QuickHullV (V2, VV2, quickh) where
 
 {-
-George Morgulis 
+George Morgulis(gm3138)
+Henry Lin(hkl2127)
 COMS 4995 Parallel Functional Programming
 
 This is the parallel implmenation of the QuickHull Algorithm to compute the convex hull. The
