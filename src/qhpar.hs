@@ -3,7 +3,8 @@ module Qhpar
     ) where
 
 {-
-George Morgulis 
+George Morgulis(gm3138)
+Henry Lin(hkl2127)
 COMS 4995 Parallel Functional Programming
 
 This is the first, really bad parallel implementaion of quickhull. This code cannot be run as the data types 
