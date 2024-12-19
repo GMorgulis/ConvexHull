@@ -1,5 +1,8 @@
 import random
+''' Simple code that generates random points on a given domain and range'''
 
+
+# Generate a list of random points
 def generate_random_points(num_points, x_range, y_range):
     points = []
     for _ in range(num_points):
@@ -8,6 +11,7 @@ def generate_random_points(num_points, x_range, y_range):
         points.append((x, y))
     return points
 
+# Writes the random points to file
 def write_points_to_file(points, filename):
     with open(filename, 'w') as file:
         for point in points:
