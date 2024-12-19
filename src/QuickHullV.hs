@@ -44,7 +44,7 @@ quickh points d = VU.cons a1 (VU.cons a2 hpar)
 ph :: VV2 -> V2 -> V2 -> Int -> VV2
 ph points a1 a2 d
   | VU.length group == 0 = VU.empty 
-  | d > 0 && VU.length group > 250000 && percentRemaining > 0.3 = VU.cons m1 hpar
+  | d > 0 && VU.length group > 250000 && percentRemaining > 0.2 = VU.cons m1 hpar
   | otherwise = VU.cons m1 h
   where
     percentRemaining = fromIntegral (VU.length group) / fromIntegral (VU.length points) :: Double

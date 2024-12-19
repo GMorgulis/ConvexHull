@@ -7,8 +7,8 @@ George Morgulis(gm3138)
 Henry Lin(hkl2127)
 COMS 4995 Parallel Functional Programming
 
-This is my very first sequential implmentation of Quick Hull.
-(!!!) This code is not meant to be run as the project greatly changed since I wrote this first 
+This is our very first sequential implmentation of Quick Hull.
+(!!!) This code is not meant to be run as the project greatly changed since we first we wrote this
 implementation. This simply exists to show how far the project has progressed. 
 -}
 

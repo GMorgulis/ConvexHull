@@ -59,7 +59,6 @@ executables:
     - -O2
     - -threaded
     - -rtsopts
-    - -eventlog
     - -with-rtsopts=-N
     dependencies:
     - convex-hull

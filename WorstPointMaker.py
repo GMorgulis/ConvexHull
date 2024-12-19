@@ -24,10 +24,10 @@ def write_points_to_file(filename, x_coords, y_coords):
 
 radius = 50000000
 num_points = 4000000
-jitter = 5000
+jitter = 5
 x_coords, y_coords = generate_circle_points(radius, num_points,jitter)
 
-filename = "random_points2mil.txt"
+filename = "d4m5j.txt"
 write_points_to_file(filename, x_coords, y_coords)
 
 print(f"Points have been written to {filename}")

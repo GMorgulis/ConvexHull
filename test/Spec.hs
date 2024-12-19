@@ -8,6 +8,9 @@ import Qhseq (qh)
 {-
 George Morgulis(gm3138)
 Henry Lin(hkl2127)
+
+This class simply checks for the correctness of the QuickHull Algorithm by comparing it to our correct 
+sequential implementation, and the correct implementation "Andrew Monontone Chain", which we found on wikepedia
 -}
 
 {-Generate a random point (x, y) where x and y are between -x and x-}
@@ -43,8 +46,8 @@ main = do
     print (length andrewPoints)
 
     if (sort(nub parPoints) == sort(nub(seqPoints)))
-        then print "Test Passed!"
-        else print "Test Failed!"
+        then print "Seq Test Passed!"
+        else print "Seq Test Failed!"
     
     if (sort(nub parPoints) == sort(nub(andrewPoints)))
         then print "Andrew Passed"

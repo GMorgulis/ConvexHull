@@ -32,17 +32,8 @@ main = do
         _ -> putStrLn "Usage: program <input_file>"
 
 
-{-Function to parse a ByteString line into a tuple of doubles-}
-parseLine :: B.ByteString -> (Double, Double)
-parseLine line =
-    let [x, y] = map (read . BC.unpack) (BC.split ',' line)
-    in (x, y)
 
-{-Function to convert a list of tuples to VV2-}
-listToVV2 :: [(Double, Double)] -> VV2
-listToVV2 = VU.fromList
-
-{- Function to read and parse the file into a VV2-}
+{-Reads and parses the file into a points (vv2)-}
 readPointsFromFile :: FilePath -> IO VV2
 readPointsFromFile filePath = do
     content <- B.readFile(filePath)
@@ -51,3 +42,14 @@ readPointsFromFile filePath = do
     return $ listToVV2 pointsList
 
 
+{-Parses a ByteString line into a tuple of doubles. Throws error if wrong format-}
+parseLine :: B.ByteString -> (Double, Double)
+parseLine line = case map (read . BC.unpack) (BC.split ',' line) of
+    [x, y] -> (x, y)
+    _      -> error "Invalid line format"
+
+
+
+{-Converts a list of tuples to a vector of tupples (vv2)-}
+listToVV2 :: [(Double, Double)] -> VV2
+listToVV2 = VU.fromList
